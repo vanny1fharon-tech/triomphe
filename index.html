@@ -1332,7 +1332,7 @@ async function loadTT(cid) { try { TTC[cid] = (await DB.get("timetable/" + cid))
 function renderTab() {
   stopGroup();
   const box = $("stab"); if (!box) return;
-  if (!SCLASS && STAB !== "ex" && STAB !== "qz" && STAB !== "st" && STAB !== "ct") { box.innerHTML = ""; return; }
+  if (!SCLASS && STAB !== "ex" && STAB !== "qz" && STAB !== "st" && STAB !== "ct" && STAB !== "pf") { box.innerHTML = ""; return; }
   ({ tt: tabTT, gr: tabGroups, nt: tabNotes, ex: tabExams, qz: tabQuiz, ab: tabAbs, ap: tabAppel, ct: tabContact, dv: tabDv, qc: tabQc, lb: tabLib, no: tabNo, st: tabSt, pf: tabPf, sx: function () { } }[STAB] || tabTT)();
 }
 function ttTable(t) {
