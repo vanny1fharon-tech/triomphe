@@ -1052,6 +1052,7 @@ async function onAuth(u) {
   if (REG) return;
   if (/^s[0-9a-f]{24}@/.test(u.email || "")) { try { await AUTH.signOut(); } catch (e) { } return; }
   try { PROF_ERR = ""; ME = await loadProfile(u); } catch (e) { ME = null; PROF_ERR = String((e && (e.code || e.message)) || "erreur"); console.warn(e); }
+  if (!ME && !PROF_ERR && String(u.email || "").endsWith("@" + STU_DOMAIN)) { try { await AUTH.signOut(); } catch (e) { } toast("Ce compte n’existe plus : l’élève a été retiré de l’établissement."); return; }
   afterAuth();
 }
 function afterAuth() {
@@ -1629,7 +1630,14 @@ $("adm").addEventListener("click", async e => {
       await Promise.all(lines.map(async l => { const k = rosterKey(ACLS, l, ""), old = await DB.get("roster/" + k), d = { classId: ACLS, display: l, key: k, createdAt: NOW() }; if (old && old.sfx) d.sfx = old.sfx; return DB.set("roster/" + k, d); }));
       toast(lines.length + " élève(s) ajouté(s)."); await adminList(); if ($("f-x")) $("f-x").value = ""; return;
     }
-    if (a === "delroster") { await DB.del("roster/" + v); adminList(); return; }
+    if (a === "delroster") {
+      if (!confirm("Retirer cet élève de la classe ? Son compte, son profil Élèves NEW et ses données seront supprimés définitivement.")) return;
+      let nb = 0;
+      try { for (const u of await DB.list("users", { where: ["key", "==", v] })) { for (const p of ["sprofiles/", "ssess/", "users/"]) { try { await DB.del(p + u.id); } catch (e) { } } nb++; } } catch (e) { }
+      try { await DB.del("bulletins/" + v); } catch (e) { }
+      await DB.del("roster/" + v);
+      toast(nb ? "Élève retiré : compte et profil supprimés." : "Élève retiré de la liste."); adminList(); return;
+    }
     if (a === "blk") { await DB.set("users/" + v, { blocked: b.getAttribute("data-b") === "1" }, true); toast("Compte mis à jour."); adminList(); return; }
     if (a === "rst") {
       if (!confirm("Réinitialiser l’accès de cet élève ? Son compte est supprimé du site et il devra se réinscrire avec un nouveau mot de passe.")) return;
