@@ -1982,8 +1982,8 @@ function updUnread() { const n = ANN.filter(a => liveAnn(a) && a.createdAt > SEE
 function markSeen() { if (ANN.length) { SEEN = Math.max(SEEN, Math.max.apply(null, ANN.map(a => a.createdAt))); try { localStorage.setItem("ltr_seen", SEEN); } catch (e) { } } updUnread(); }
 function notifyNew(l) {
   const mx = l.length ? Math.max.apply(null, l.map(a => a.createdAt)) : 0;
-  if (ANNMAX !== null && mx > ANNMAX && "Notification" in window && Notification.permission === "granted" && localStorage.getItem("ltr_notif") === "1") {
-    l.filter(a => a.createdAt > ANNMAX).forEach(a => { try { new Notification("Lycée Le Triomphe", { body: a.t }); } catch (e) { } });
+  if (ANNMAX !== null && mx > ANNMAX && "Notification" in window && Notification.permission === "granted" && localStorage.getItem("ltr_notif") !== "0") {
+    l.filter(a => a.createdAt > ANNMAX).forEach(a => { try { if (window.LTN) LTN.show("📢 Lycée Le Triomphe", a.t, "ann-" + a.id); else new Notification("Lycée Le Triomphe", { body: a.t }); } catch (e) { } });
   }
   ANNMAX = Math.max(ANNMAX || 0, mx);
 }
@@ -3550,7 +3550,7 @@ sync();
   /* ---------- sonnerie (sans fichier) ---------- */
   function ring(on) {
     try {
-      if (!on) { if (ringer) { clearInterval(ringer.t); try { ringer.c.close(); } catch (e) { } ringer = null; } if (navigator.vibrate) navigator.vibrate(0); return; }
+      if (!on) { try { window.LTN && LTN.closeCall(); } catch (e) { } if (ringer) { clearInterval(ringer.t); try { ringer.c.close(); } catch (e) { } ringer = null; } if (navigator.vibrate) navigator.vibrate(0); return; }
       if (ringer) return;
       var C = window.AudioContext || window.webkitAudioContext; if (!C) return;
       var c = new C();
@@ -3852,17 +3852,23 @@ sync();
   /* ---------- appelé ---------- */
   function watchIn() {
     if (unIn || !ok()) return;
+    if (Date.now() < (watchIn._retry || 0)) return;
     unIn = DB.watch("calls", { where: ["to", "==", myId()] }, function (l, err) {
-      if (err) return;
-      var d = l.filter(function (x) { return x.state === "ringing" && now() - (x.at || 0) < 60000; })[0];
+      if (err) {
+        try { if (unIn) unIn(); } catch (e) { } unIn = null; watchIn._retry = Date.now() + 15000;
+        if (!watchIn._said) { watchIn._said = 1; say("Appels entrants bloqués (" + ((err && err.code) || "erreur") + "). Règles Firestore « calls » à vérifier."); }
+        return;
+      }
+      watchIn._said = 0;
+      var d = l.filter(function (x) { return x.state === "ringing" && Math.abs(now() - (x.at || 0)) < 120000; })[0];
       if (incoming && (!d || d.id !== incoming.id)) {
-        if (role === "in" && !answered && busy && !ended) { say("Appel manqué de " + peerName); finish("missed", false); }
+        if (role === "in" && !answered && busy && !ended) { say("Appel manqué de " + peerName); try { window.LTN && document.hidden && LTN.show("📞 Appel manqué", peerName, "lt-miss"); } catch (e) { } finish("missed", false); }
         incoming = null;
       }
       if (!d || busy) { if (d && busy && d.id !== cid) DB.set("calls/" + d.id, { state: "busy" }, true).catch(function () { }); return; }
       if (d.from === myId()) return;
       incoming = d; busy = true; ended = false; answered = false; t0 = 0; role = "in"; peer = d.from; peerName = d.name || "Élève"; peerPhoto = ""; kind = d.kind === "video" ? "video" : "audio"; cid = d.id; facing = "user";
-      showUI("in"); ring(true);
+      showUI("in"); ring(true); try { window.LTN && LTN.call(peerName, kind); } catch (e) { }
       DB.get("sprofiles/" + d.from).then(function (p) { if (p && okImg(p.photo) && cid === d.id && ui) { peerPhoto = p.photo; setAv(ui.querySelector('[data-w="r2"]'), peerName, peerPhoto); setAv(ui.querySelector('[data-w="r"]'), peerName, peerPhoto); } }).catch(function () { });
       var id = d.id; tRing = setTimeout(function () { if (cid === id && !answered) finish("missed", false); }, RING_MS + 5000);
       watchCallDoc();
@@ -4351,5 +4357,67 @@ sync();
 })();
 </script>
 
+<script id="notif">
+/* ===== Notifications (appels, messages, groupe, annonces) via service worker (sw.js) ===== */
+(function () {
+  "use strict";
+  var reg = null, banner = null;
+  var me = function () { try { return (USER && USER.uid) || ""; } catch (e) { return ""; } };
+  var allowed = function () { try { return "Notification" in window && Notification.permission === "granted" && localStorage.getItem("ltr_notif") !== "0"; } catch (e) { return false; } };
+  try { if ("serviceWorker" in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register("sw.js").then(function (r) { reg = r; }).catch(function () { }); } catch (e) { }
+  async function getReg() { if (reg) return reg; try { reg = (await navigator.serviceWorker.getRegistration()) || null; } catch (e) { } return reg; }
+  async function show(title, body, tag, o) {
+    if (!allowed()) return;
+    o = Object.assign({ body: String(body || "").slice(0, 160), tag: tag || "lt", renotify: true, vibrate: [200, 100, 200] }, o || {});
+    try { if (typeof NWLOGO === "string") o.icon = NWLOGO; } catch (e) { }
+    try { var r = await getReg(); if (r && r.showNotification) return await r.showNotification(title, o); } catch (e) { }
+    try { new Notification(title, o); } catch (e) { }
+  }
+  async function closeCall() { try { var r = await getReg(); if (r) (await r.getNotifications({ tag: "lt-call" })).forEach(function (n) { n.close(); }); } catch (e) { } }
+  window.LTN = {
+    show: show, closeCall: closeCall,
+    call: function (name, kind) { show(kind === "video" ? "📹 Appel vidéo entrant" : "📞 Appel vocal entrant", name || "Élève", "lt-call", { requireInteraction: true, vibrate: [500, 250, 500, 250, 500, 250, 500] }); }
+  };
+  /* nouveaux messages : on surveille les écoutes déjà existantes, sans lectures en plus */
+  function txt(m) { return m.img ? "📷 Photo" : m.video ? "🎬 Vidéo" : m.audio ? "🎵 Son" : String(m.text || m.t || "Nouveau message"); }
+  function wrap() {
+    if (typeof DB === "undefined" || !DB) return false; if (DB._ltn) return true;
+    var w = DB.watch; if (typeof w !== "function") return false;
+    DB.watch = function (c, o, cb) {
+      var seen = null, kind = /^sdm\/.+\/m$/.test(c) ? "dm" : (c === "sgroup" || /^groups\/.+\/messages$/.test(c)) ? "grp" : "";
+      return w.call(DB, c, o, function (l, e) {
+        try {
+          if (kind && l) {
+            if (seen === null) { seen = {}; l.forEach(function (x) { seen[x.id] = 1; }); }
+            else l.forEach(function (x) {
+              if (seen[x.id]) return; seen[x.id] = 1;
+              if (!document.hidden || !x.createdAt || x.uid === me() || Date.now() - x.createdAt > 6e5) return;
+              show(kind === "dm" ? "💬 Nouveau message" : "👥 " + (x.name || "Groupe LNEW"), kind === "dm" ? txt(x) : (x.name ? x.name + " : " : "") + txt(x), kind + "-" + x.id);
+            });
+          }
+        } catch (x) { }
+        cb(l, e);
+      });
+    };
+    DB._ltn = 1; return true;
+  }
+  var tw = setInterval(function () { if (wrap()) clearInterval(tw); }, 100);
+  /* bouton d'activation (le navigateur exige un geste de l'utilisateur) */
+  function ban() {
+    if (banner || !("Notification" in window) || Notification.permission !== "default" || !me()) return;
+    banner = document.createElement("button"); banner.type = "button"; banner.textContent = "🔔 Activer les notifications (appels, messages)";
+    banner.style.cssText = "position:fixed;left:12px;bottom:84px;z-index:9998;background:#0b4a1f;color:#ffe27a;border:2px solid #f3c63d;border-radius:22px;padding:10px 14px;font:700 14px system-ui,sans-serif";
+    banner.onclick = function () {
+      Notification.requestPermission().then(function (p) {
+        try { localStorage.setItem("ltr_notif", p === "granted" ? "1" : "0"); } catch (e) { }
+        if (banner) banner.remove(); banner = null;
+        if (p === "granted") show("Notifications activées", "Tu seras prévenu des appels et des messages.", "lt-ok");
+      });
+    };
+    document.body.appendChild(banner);
+  }
+  setInterval(ban, 3000);
+})();
+</script>
 </body>
 </html>
