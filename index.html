@@ -978,7 +978,8 @@ async function openPw(id, a, d) {
 /* Blocage temporaire après des échecs répétés (en plus de la limite du serveur) */
 const FK = "ltr_fail";
 function lockLeft() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); if (o.until && o.until > Date.now()) return Math.ceil((o.until - Date.now()) / 1000); } catch (e) { } return 0; }
-function noteFail() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); o.n = (o.n || 0) + 1; if (o.n >= 5) o.until = Date.now() + Math.min(3600e3, 30e3 * Math.pow(2, o.n - 5)); localStorage.setItem(FK, JSON.stringify(o)); } catch (e) { } }
+function lockMsg(sec) { const h = Math.floor(sec / 3600), m = Math.ceil((sec % 3600) / 60); return "Trop d’essais incorrects : accès bloqué. Réessaie dans " + (h ? h + " h " : "") + m + " min. Si tu n’arrives toujours pas à te connecter, contacte l’administrateur : vannyfharon@gmail.com."; }
+function noteFail() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); o.n = (o.n || 0) + 1; if (o.n >= 10) { o.until = Date.now() + 86400e3; o.n = 0; } localStorage.setItem(FK, JSON.stringify(o)); } catch (e) { } }
 function noteOk() { try { localStorage.removeItem(FK); } catch (e) { } }
 
 /* ---------- Enseignants : index construit depuis les emplois du temps ---------- */
@@ -1095,7 +1096,7 @@ async function doFix(f) {
   const nom = $("fx-n").value.trim(), prenom = $("fx-p").value.trim(), fn = $("fx-f").value, pw = $("fx-w").value;
   if (!USER) { say(m, "Connecte-toi d’abord.", false); return; }
   if (!words(nom).length || !words(prenom).length) { say(m, "Écris ton nom et ton prénom.", false); return; }
-  const lk = lockLeft(); if (lk) { say(m, "Trop d’essais. Réessaie dans " + lk + " s.", false); return; }
+  const lk = lockLeft(); if (lk) { say(m, lockMsg(lk), false); return; }
   btn.disabled = true; say(m, "Vérification…", true);
   try {
     if (await codeHash(pw) !== H_ADM) { noteFail(); say(m, "ÉCHEC : mot de passe de l’administration incorrect.", false); btn.disabled = false; return; }
@@ -1119,7 +1120,7 @@ async function doStudent(kind, f) {
   const id = f.getAttribute("data-form"), g = k => $(id + "-" + k).value.trim();
   const nom = g("n"), prenom = g("p"), cid = $(id + "-c").value, pw = $(id + "-w").value, c = clsById(cid), btn = f.querySelector("button[type=submit]");
   if (!words(nom).length || !words(prenom).length) { say(id + "-m", "Écris ton nom et ton prénom.", false); return; }
-  const lk = lockLeft(); if (lk) { say(id + "-m", "Trop d’essais. Réessaie dans " + lk + " s.", false); return; }
+  const lk = lockLeft(); if (lk) { say(id + "-m", lockMsg(lk), false); return; }
   btn.disabled = true; say(id + "-m", "Vérification…", true);
   try {
     const R = await rosterFor(cid, nom, prenom), id0 = R.key + ((R.r && R.r.sfx) || "");
@@ -1152,7 +1153,7 @@ async function doStudent(kind, f) {
   } catch (e) { REG = false; if (e.code !== "auth/network-request-failed") noteFail(); say(id + "-m", kind === "log" ? (e.code === "auth/network-request-failed" ? frErr(e) : e.code === "auth/too-many-requests" ? frErr(e) : "Nom, classe ou mot de passe incorrect.") : frErr(e), false); btn.disabled = false; }
 }
 async function doRecovery(f) {
-  const btn = f.querySelector("button[type=submit]"), lk = lockLeft(); if (lk) { say("so-m", "Trop d’essais. Réessaie dans " + lk + " s.", false); return; }
+  const btn = f.querySelector("button[type=submit]"), lk = lockLeft(); if (lk) { say("so-m", lockMsg(lk), false); return; }
   btn.disabled = true; say("so-m", "Vérification…", true);
   if (!RECOV) { // étape 1 : retrouver l’élève et sa question secrète
     try {
@@ -1205,7 +1206,7 @@ async function doParent(kind, f) {
 async function doStaff(kind, f) {
   const id = f.getAttribute("data-form"), m = id + "-m", g = k => $(id + "-" + k).value.trim(), btn = f.querySelector("button[type=submit]");
   const nom = g("n"), prenom = g("p"), email = g("e").toLowerCase(), pw = $(id + "-w").value, adm = !!email;
-  const lk = lockLeft(); if (lk) { say(m, "Trop d’essais. Réessaie dans " + lk + " s.", false); return; }
+  const lk = lockLeft(); if (lk) { say(m, lockMsg(lk), false); return; }
   if (kind === "reg" && pw !== $(id + "-w2").value) { say(m, "Les deux mots de passe sont différents.", false); return; }
   if (!adm && (!words(nom).length || !words(prenom).length)) { say(m, "Écris ton nom et ton prénom.", false); return; }
   if (adm && kind === "reg" && (!words(nom).length || !words(prenom).length)) { say(m, "Écris ton nom et ton prénom.", false); return; }
@@ -1256,9 +1257,9 @@ function renderSpace() {
   const al = allowedClasses();
   if (!SCLASS || !al.some(c => c.id === SCLASS)) SCLASS = al[0] ? al[0].id : null;
   const w = who();
-  const tabs = ME.role === "eleve" ? [["tt", "Emploi du temps"], ["gr", "Groupes"], ["sx", NWI + " Élèves NEW"], ["nt", "Calcul des moyennes"], ["dv", "Devoirs"], ["qc", "QCM"], ["lb", "📚 Ressources"], ["ab", "Absences"], ["ex", "Examens"], ["ct", "✉️ Administration"], ["qz", "Défi du jour"], ["pf", "👤 Mon profil"]]
+  const tabs = ME.role === "eleve" ? [["tt", "Emploi du temps"], ["gr", "Groupes"], ["sx", NWI + " Élèves NEW"], ["nt", "Calcul des moyennes"], ["qc", "QCM"], ["pf", "👤 Mon profil"]]
     : ME.role === "parent" ? []
-      : [["tt", "Emplois du temps"], ["gr", "Groupes"], ["ap", "Appel"], ["dv", "Devoirs"], ["qc", "QCM"], ["lb", "📚 Ressources"], ["no", "Notes"], ["st", "👥 Équipe"], ["ex", "Examens"]].concat(ME.role === "prof" ? [["ct", "✉️ Administration"]] : []);
+      : [["tt", "Emplois du temps"], ["gr", "Groupes"], ["qc", "QCM"], ["no", "Notes"], ["st", "👥 Équipe"]].concat(ME.role === "prof" ? [["ct", "✉️ Administration"]] : []);
   if (tabs.every(t => t[0] !== STAB)) STAB = "tt";
   const staff = ME.role === "admin" || ME.role === "prof";
   $("sp-h").hidden = true;
@@ -1270,7 +1271,7 @@ function renderSpace() {
   renderTab();
 }
 function dashHTML(w, tabs) {
-  const T = [["lb", "ic_book", "Mes Cours", "Accéder à vos cours et supports"], ["dv", "ic_clip", "Mes Devoirs", "Voir vos devoirs et travaux"], ["tt", "ic_calclock", "Mon Emploi du Temps", "Consulter votre emploi du temps"], ["nt", "ic_notes", "Calcul des moyennes", "Calculer tes moyennes"], ["@ann", "ic_mega2", "Annonces", "Voir les dernières informations"], ["pf", "ic_gear", "Mon Profil", "Gérer votre compte"]];
+  const T = [["tt", "ic_calclock", "Mon Emploi du Temps", "Consulter votre emploi du temps"], ["nt", "ic_notes", "Calcul des moyennes", "Calculer tes moyennes"], ["@ann", "ic_mega2", "Annonces", "Voir les dernières informations"], ["pf", "ic_gear", "Mon Profil", "Gérer votre compte"]];
   const l = ANN.filter(liveAnn).sort((a, b) => b.createdAt - a.createdAt)[0], on = navigator.onLine !== false;
   return '<div class="dhero"><img src="' + AIMG.hero_espace + '" alt="Espace Élèves – Apprendre, réussir, briller" width="760" height="351"></div>' +
     '<div class="welcome"><div class="av" aria-hidden="true">👤</div><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Que la connaissance soit ta force !</div></div><span class="online' + (on ? "" : " off") + '">' + (on ? "En ligne" : "Hors ligne") + '</span></div>' +
@@ -1280,7 +1281,7 @@ function dashHTML(w, tabs) {
     '<div class="dfoot"><img src="' + AIMG.foot_espace + '" alt="Ensemble vers l’excellence" width="700" height="141"></div>';
 }
 function profDash(w, tabs, al) {
-  const T = [["tt", "p_tt", "Emploi du temps", "Voir mon planning"], ["gr", "p_cl", "Mes classes", "Gérer mes classes"], ["dv", "p_dv", "Devoirs", "Publier et consulter"], ["no", "p_nt", "Notes", "Saisir et consulter"], ["qc", "p_qc", "QCM", "Créer des évaluations"], ["lb", "p_rs", "Ressources", "Partager des documents"], ["ap", "p_ap", "Appel", "Marquer les présences"], ["ex", "p_ex", "Examens", "Gérer les examens"], ["ct", "p_co", "Communications", "Échanger avec l’administration", 1]], on = navigator.onLine !== false;
+  const T = [["tt", "p_tt", "Emploi du temps", "Voir mon planning"], ["gr", "p_cl", "Mes classes", "Gérer mes classes"], ["no", "p_nt", "Notes", "Saisir et consulter"], ["qc", "p_qc", "QCM", "Créer des évaluations"], ["ct", "p_co", "Communications", "Écrire à la censure ou au proviseur", 1]], on = navigator.onLine !== false;
   return '<div class="welcome pw"><img class="av" src="' + AIMG.p_av + '" alt="" width="72" height="72"><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Enseignant' + (ME.matiere ? '<br>Matière : ' + esc(ME.matiere) : "") + '</div></div><button type="button" class="outb" data-s="logout">↪ Se déconnecter</button></div>' +
     '<div class="ph"><span>🎓</span>Mes outils<i></i></div>' +
     '<div class="ptools">' + T.map(t => '<button type="button" class="pt' + (t[4] ? " wide" : "") + '" data-s="dtab" data-v="' + t[0] + '"><img src="' + AIMG[t[1]] + '" alt=""><span><b>' + t[2] + '</b>' + t[3] + '</span></button>').join("") + '</div>' +
