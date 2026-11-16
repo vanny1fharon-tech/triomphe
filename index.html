@@ -1049,7 +1049,7 @@ async function loadProfile(u) {
 let PROF_ERR = "";
 let REPUN = null, REPORTS = [];
 async function onAuth(u) {
-  USER = u; MYLIKE.clear(); MYVOTE.clear();
+  USER = u; MYLIKE.clear(); MYVOTE.clear(); try { window.__sreset && window.__sreset(); } catch (e) { } try { window.__rx && window.__rx.reset && window.__rx.reset(); } catch (e) { }
   if (!u) { ME = null; afterAuth(); return; }
   if (REG) return;
   if (/^s[0-9a-f]{24}@/.test(u.email || "")) { try { await AUTH.signOut(); } catch (e) { } return; }
@@ -2021,7 +2021,7 @@ function renderGal() { $("galev").innerHTML = GAL.map(g => { const im = safeImg(
 <script>
 (function(){"use strict";
 const $q=i=>document.getElementById(i),ROOT=()=>document.getElementById(PAGE==="social"?"soc":"stab"),hasG=()=>!!USER&&(AUTH&&AUTH.hasGoogle?AUTH.hasGoogle():localStorage.getItem("ltr_g_"+USER.email)==="1"),isEl=()=>!!USER&&!!ME&&ME.role==="eleve"&&hasG(),inTab=()=>PAGE==="social"||(PAGE==="espace"&&STAB==="sx");
-const S={tab:"feed",posts:[],grp:[],profs:{},fa:[],fb:[],msgs:[],un:[],dm:null,dmu:null,last:0,lk:{},nreq:0,on:false};
+const S={tab:"feed",posts:[],grp:[],profs:{},fa:[],fb:[],msgs:[],un:[],dm:null,dmu:null,last:0,lk:{},nreq:0,on:false};window.__sreset=function(){S.lk={};S.ct={}};
 const pid=(a,b)=>a<b?a+"_"+b:b+"_"+a,me=()=>USER.uid,T=s=>String(s||"").trim();
 const BAD=/\b(connard|connasse|merde|salope|pute|encul[eé]|fdp|nique|putain|b[aâ]tard)\b/i;
 const mod=t=>BAD.test(t)?"Message refusé : langage inapproprié.":/https?:\/\/|www\./i.test(t)?"Les liens ne sont pas autorisés.":/(.)\1{9,}/.test(t)?"Message refusé (spam).":Date.now()-S.last<4000?"Doucement, attends quelques secondes.":"";
@@ -2347,7 +2347,7 @@ async function gateGoogle(){
   const d=await DB.get("snsalt/"+me());
   openGate("pw",!d);
 }
-function gateIn(){nwSet();hideGate();S.on=false;start()}
+function gateIn(){nwSet();hideGate();S.on=false;start();try{window.__bioGate&&window.__bioGate()}catch(e){}}
 document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("[data-nw]");if(!b)return;const a=b.dataset.nw;
  try{
   if(a==="close")return gateLeave();
@@ -3259,7 +3259,7 @@ function endPress(e){if(!press)return;var st=press;press=null;clearTimeout(st.t)
 document.addEventListener('pointerup',endPress,true);
 document.addEventListener('pointercancel',function(){if(press){clearTimeout(press.t);press=null}},true);
 document.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest('[data-sa="lk"],#stv .svbar .hrt,.rxp'))e.preventDefault()},true);
-window.__rx={RX:RX,ORDER:ORDER,start:startPress,burst:burst,big:big,swallowed:function(){return Date.now()-swallow<700}};
+window.__rx={reset:function(){R={}},RX:RX,ORDER:ORDER,start:startPress,burst:burst,big:big,swallowed:function(){return Date.now()-swallow<700}};
 
 /* ---------- réactions sur les publications du fil ---------- */
 var R={};
@@ -4292,5 +4292,64 @@ sync();
 })();
 </script>
 <div id="verbadge" style="position:fixed;left:8px;bottom:4px;z-index:99990;font:700 11px/1 sans-serif;color:#fff;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:9px;pointer-events:none">Version 21</div>
+<script id="bio">
+/* Connexion par empreinte / visage / code du téléphone (WebAuthn, vérification locale) */
+(function(){
+  var OK=!!(window.PublicKeyCredential&&navigator.credentials&&window.crypto&&crypto.subtle&&window.indexedDB&&window.isSecureContext);
+  if(!OK)return;
+  var PEND=null,USED=null,KP="ltr_bio_",$=function(i){return document.getElementById(i)};
+  var b64=function(b){var s="";new Uint8Array(b).forEach(function(c){s+=String.fromCharCode(c)});return btoa(s)};
+  var unb=function(s){var r=atob(s),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a};
+  var rnd=function(n){return crypto.getRandomValues(new Uint8Array(n))};
+  var say=function(id,t){var e=$(id);if(e){e.textContent=t;e.className="msg err"}};
+  var info=function(m){try{toast(m)}catch(e){alert(m)}};
+  function idb(){return new Promise(function(res,rej){var r=indexedDB.open("ltr_bio",1);r.onupgradeneeded=function(){r.result.createObjectStore("k")};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+  async function key(){var d=await idb();var k=await new Promise(function(res){var q=d.transaction("k").objectStore("k").get("main");q.onsuccess=function(){res(q.result)};q.onerror=function(){res(null)}});
+    if(k)return k;k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+    await new Promise(function(res,rej){var t=d.transaction("k","readwrite");t.objectStore("k").put(k,"main");t.oncomplete=res;t.onerror=function(){rej(t.error)}});return k}
+  var has=function(id){try{return !!localStorage.getItem(KP+id)}catch(e){return false}};
+  var del=function(id){try{localStorage.removeItem(KP+id)}catch(e){}};
+  async function enroll(id,pw){
+    var cr=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:"Lycée Le Triomphe",id:location.hostname},user:{id:rnd(16),name:"triomphe",displayName:"Lycée Le Triomphe"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000,attestation:"none"}});
+    var k=await key(),iv=rnd(12),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},k,new TextEncoder().encode(pw));
+    localStorage.setItem(KP+id,JSON.stringify({c:b64(cr.rawId),iv:b64(iv),d:b64(ct)}));
+  }
+  async function unlock(id){
+    var o=JSON.parse(localStorage.getItem(KP+id));
+    await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:unb(o.c)}],userVerification:"required",timeout:60000}});
+    var k=await key(),p=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(o.iv)},k,unb(o.d));
+    return new TextDecoder().decode(p);
+  }
+  function fid(f){var id=f.getAttribute("data-form"),p=[id];["e","n","p","c"].forEach(function(s){var e=$(id+"-"+s);if(e)p.push(String(e.value||"").trim().toLowerCase().replace(/\s+/g," "))});return p.join("|")}
+  function isLogin(f){var id=f.getAttribute("data-form");return !!$(id+"-w")&&!$(id+"-w2")&&!$(id+"-a")&&/connecter/i.test((f.querySelector("button[type=submit]")||{}).textContent||"")}
+  function watch(id,m,after){USED=id;setTimeout(function(){if(USED===id&&!(typeof USER!=="undefined"&&USER&&after())){del(id);USED=null;say(m,"Le mot de passe a changé : tape-le une fois, puis réactive l’empreinte.")}else if(USED===id)USED=null},9000)}
+  /* Étape 1 : le bouton « Se connecter » avec mot de passe vide */
+  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button[type=submit]");if(!b)return;var f=b.form;if(!f||!f.getAttribute("data-form")||!isLogin(f))return;var w=$(f.getAttribute("data-form")+"-w");if(w&&!w.value)w.required=false},true);
+  document.addEventListener("submit",function(e){var f=e.target.closest&&e.target.closest("form[data-form]");if(!f||!isLogin(f)||f.__bio)return;
+    var id=f.getAttribute("data-form"),w=$(id+"-w"),m=id+"-m",k=fid(f);
+    if(w.value){PEND={id:k,pw:w.value,t:Date.now()};return}
+    e.preventDefault();e.stopImmediatePropagation();
+    if(!has(k)){say(m,"Entre ton mot de passe (tu pourras ensuite activer l’empreinte).");return}
+    say(m,"Pose ton doigt ou déverrouille le téléphone…");$(m).className="msg good";
+    unlock(k).then(function(pw){w.value=pw;f.__bio=1;watch(k,m,function(){return true});f.requestSubmit();setTimeout(function(){f.__bio=0;w.value=""},400)}).catch(function(){say(m,"Vérification annulée ou refusée. Tape ton mot de passe.")});
+  },true);
+  /* Élève New : bouton « Se connecter » du verrou */
+  document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest('[data-nw="ck"]');if(!b||b.__bio)return;var w=$("nw-p");if(!w)return;
+    var k="nw|"+(typeof USER!=="undefined"&&USER?USER.uid:"");
+    if(w.value){PEND={id:k,pw:w.value,t:Date.now(),nw:1};return}
+    e.preventDefault();e.stopImmediatePropagation();
+    if(!has(k)){say("nw-m","Entre ton mot de passe (tu pourras ensuite activer l’empreinte).");return}
+    unlock(k).then(function(pw){w.value=pw;b.__bio=1;watch(k,"nw-m",function(){return !$("nw-p")});b.click();setTimeout(function(){b.__bio=0},400)}).catch(function(){say("nw-m","Vérification annulée ou refusée. Tape ton mot de passe.")});
+  },true);
+  /* Étape 2 : proposer l’activation après une connexion réussie */
+  async function offer(nw){var p=PEND;if(!p||Date.now()-p.t>120000||(!!p.nw)!==!!nw){return}PEND=null;USED=null;
+    if(has(p.id))return;
+    if(!confirm("Activer l’empreinte digitale, le visage ou le code du téléphone pour te connecter sans taper ton mot de passe ?"))return;
+    try{await enroll(p.id,p.pw);info("Activé. La prochaine fois, laisse le mot de passe vide.")}catch(x){info("Activation annulée ou impossible sur cet appareil.")}}
+  var oa=window.afterAuth;if(typeof oa==="function"){window.afterAuth=function(){var r=oa.apply(this,arguments);if(typeof USER!=="undefined"&&USER)setTimeout(function(){offer(false)},600);return r}}
+  window.__bioGate=function(){setTimeout(function(){offer(true)},600)};
+})();
+</script>
+
 </body>
 </html>
