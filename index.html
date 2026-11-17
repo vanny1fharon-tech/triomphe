@@ -487,16 +487,28 @@ body.fsm[data-p=social] #fst{display:none}
 <script>
 /* ===== CLOUDINARY (gratuit) : vidéos et sons du réseau Élève NEW ===== */
 window.LTCLD={
+ /* Deux comptes Cloudinary gratuits : si l’envoi échoue sur l’un (quota épuisé, compte bloqué…), le site essaie automatiquement l’autre. */
+ ACCOUNTS:[
+  {CLOUD_NAME:"vphizdbr",UPLOAD_PRESET:"lycee_media"},
+  {CLOUD_NAME:"wgpthbyn",UPLOAD_PRESET:"lycee_media"}
+ ],
  CLOUD_NAME:"vphizdbr",
  UPLOAD_PRESET:"lycee_media",
- up:function(file,kind){var C=this;return new Promise(function(ok,ko){
-  if(!C.CLOUD_NAME||/^VOTRE/.test(C.CLOUD_NAME)||!C.UPLOAD_PRESET||/^VOTRE/.test(C.UPLOAD_PRESET))return ko(new Error("Envoi vidéo/son pas encore activé (Cloudinary à configurer)."));
-  var f=new FormData();f.append("file",file);f.append("upload_preset",C.UPLOAD_PRESET);f.append("folder",(file&&/^vocal-/.test(file.name||""))?"eleve-new/vn":(file&&/^rond-/.test(file.name||""))?"eleve-new/rond":"eleve-new");
-  var x=new XMLHttpRequest();x.open("POST","https://api.cloudinary.com/v1_1/"+encodeURIComponent(C.CLOUD_NAME)+"/auto/upload");
+ one:function(A,file){var C=this;return new Promise(function(ok,ko){
+  if(!A||!A.CLOUD_NAME||/^VOTRE/.test(A.CLOUD_NAME)||!A.UPLOAD_PRESET||/^VOTRE/.test(A.UPLOAD_PRESET))return ko(new Error("Envoi vidéo/son pas encore activé (Cloudinary à configurer)."));
+  var f=new FormData();f.append("file",file);f.append("upload_preset",A.UPLOAD_PRESET);f.append("folder",(file&&/^vocal-/.test(file.name||""))?"eleve-new/vn":(file&&/^rond-/.test(file.name||""))?"eleve-new/rond":"eleve-new");
+  var x=new XMLHttpRequest();x.open("POST","https://api.cloudinary.com/v1_1/"+encodeURIComponent(A.CLOUD_NAME)+"/auto/upload");
   x.upload.onprogress=function(e){if(e.lengthComputable&&C.onp)C.onp(Math.round(e.loaded/e.total*100))};
   x.onload=function(){try{var r=JSON.parse(x.responseText);if(x.status>=200&&x.status<300&&r.secure_url)return ok(r.secure_url);ko(new Error((r.error&&r.error.message)||"Envoi refusé."))}catch(e){ko(new Error("Envoi refusé."))}};
   x.onerror=function(){ko(new Error("Connexion trop lente : l’envoi a échoué, réessaie."))};
-  x.send(f)})}
+  x.send(f)})},
+ up:function(file,kind){var C=this,L=C.ACCOUNTS||[],n=L.length,s=0,firstErr=null;
+  try{s=parseInt(localStorage.getItem("ltr_cld"),10)||0}catch(e){}
+  if(!n)return C.one({CLOUD_NAME:C.CLOUD_NAME,UPLOAD_PRESET:C.UPLOAD_PRESET},file);
+  if(s<0||s>=n)s=0;
+  var i=0;
+  function go(){var k=(s+i)%n;return C.one(L[k],file).then(function(u){try{localStorage.setItem("ltr_cld",String(k))}catch(e){}return u},function(err){if(!firstErr)firstErr=err;i++;if(i<n)return go();throw firstErr})}
+  return go()}
 };
 
 /* ===== MICRO : notes vocales (envoi direct, comme sur WhatsApp) ===== */
