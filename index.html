@@ -4778,5 +4778,73 @@ function u(){var h=v.height,kb=window.innerHeight-h>120;d.style.setProperty("--v
 if(kb){window.scrollTo(0,0);setTimeout(function(){var m=document.getElementById("eb-m")||document.getElementById("lm");if(m)m.scrollTop=m.scrollHeight},60)}}
 v.addEventListener("resize",u);v.addEventListener("scroll",function(){if(document.body.classList.contains("kb"))window.scrollTo(0,0)});u()})();
 </script>
+<style id="v23css">
+/* v23 : interface transparente (E-BOX, groupes, LNEW) */
+.lw .mb,.lw .bub,#gfs .mb,#gfs .bb,.lw .gm .bb{background:transparent!important;box-shadow:none!important;border:0!important}
+.lw .mr>.mb::before,.lw .mr>.mb::after,#gfs .mr>.mb::before,#gfs .mr>.mb::after,.gm .bb::before,.gm .bb::after{display:none!important}
+.lw .nwh,#gfs .gfh,body[data-p=ebox][data-eb=t] #eb-h{background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important;border:0!important}
+.lw .lf,#gfs .lf,.lw .lf .pill,#gfs .lf .pill,.lw .lf textarea,#gfs .lf textarea,.lw .lf input[type=text]{background:transparent!important;box-shadow:none!important;border:0!important}
+.lw .lf .snd,#gfs .lf .snd{background:rgba(11,74,31,.6)!important;color:#fff!important}
+.lw .nwh .t small{color:inherit!important;opacity:.85}
+/* sans fond d'écran : texte vert foncé sur le motif */
+body:not([data-wp]) .lw .nwh,body:not([data-wp]) .lw .nwh a,body:not([data-wp]) .lw .nwh button,body:not([data-wp]) #gfs .gfh,body:not([data-wp]) #gfs .gfh button{color:#0b4a1f!important}
+body:not([data-wp]) .lw .nwh svg{fill:#0b4a1f!important}
+/* avec fond d'écran : tout en blanc sur la photo */
+body[data-wp] .lw,body[data-wp] #gfs{background:var(--wp) center/cover no-repeat!important;color:#fff}
+body[data-wp] .lw .lm,body[data-wp] #gfs .lm{background:transparent!important}
+body[data-wp] .lw .mb,body[data-wp] #gfs .mb,body[data-wp] #gfs .bb,body[data-wp] .lw .nwh,body[data-wp] .lw .nwh a,body[data-wp] .lw .nwh button,body[data-wp] #gfs .gfh,body[data-wp] #gfs .gfh button,body[data-wp] .lw .lf textarea,body[data-wp] #gfs .lf textarea{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.65)}
+body[data-wp] .lw textarea::placeholder,body[data-wp] #gfs textarea::placeholder{color:rgba(255,255,255,.8)}
+body[data-wp] .mb .nm{color:#d9ffd0!important}
+body[data-wp] .mb time{color:rgba(255,255,255,.85)!important}
+body[data-wp] .lm .day span{background:rgba(0,0,0,.3)!important;color:#fff!important}
+/* notes vocales */
+body[data-wp] .vw .vp,body[data-wp] .vw .vk{color:#fff!important}
+body[data-wp] .vw .vb i{background:rgba(255,255,255,.6)!important}
+body[data-wp] .vw .vb i.on{background:#8dff9c!important}
+body[data-wp] .vw .vt{color:#fff!important}
+body[data-wp] #ltmic{background:rgba(0,0,0,.28)!important;color:#fff!important;border-color:rgba(255,255,255,.25)!important}
+/* position partagée */
+.lcard{height:140px!important}
+.lcard::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(230,242,212,.96) 85%)}
+.lcard svg,.lcard b{z-index:2}
+.lcard b{background:transparent!important;color:inherit!important;text-shadow:inherit}
+.lcard b .ldist{display:block;margin-top:3px;font:700 12px system-ui;opacity:.9}
+body[data-wp] .lcard{background-image:none!important}
+body[data-wp] .lcard::after{display:none}
+</style>
+<script>
+(function(){"use strict";
+var PRE={g1:"linear-gradient(135deg,#0b6a1f,#25a43b)",g2:"linear-gradient(135deg,#6a1b9a,#ab47bc)",g3:"linear-gradient(135deg,#1d3e8a,#42a5f5)",g4:"linear-gradient(135deg,#f12711,#f5af19)",g5:"linear-gradient(135deg,#ee0979,#ff6a00)",g6:"linear-gradient(135deg,#232526,#5c5f61)"};
+function uid(){try{return USER.uid}catch(e){return ""}}
+function key(){var u=uid();return u?"ltr_eb_bg_"+u:""}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);return true}catch(e){return false}}
+/* ---- fond d'écran (partagé E-BOX / LNEW / groupes) ---- */
+var lastWp="~";
+function applyWp(){var k=key(),v=k?(ls(k)||""):"",s=k+"|"+v.length+v.slice(-20);if(s===lastWp)return;lastWp=s;
+ var r=document.documentElement,b=document.body;
+ if(PRE[v]){r.style.setProperty("--wp",PRE[v]);b.setAttribute("data-wp","1")}
+ else if(/^data:image\/[\w.+-]+;base64,[A-Za-z0-9+\/=]+$/.test(v)){r.style.setProperty("--wp",'url("'+v+'")');b.setAttribute("data-wp","1")}
+ else{r.style.removeProperty("--wp");b.removeAttribute("data-wp")}}
+function cmp(f,max,q){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",q))};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
+function pick(){var i=document.createElement("input");i.type="file";i.accept="image/*";
+ i.onchange=function(){var f=i.files[0];if(!f)return;cmp(f,1000,.72).then(function(d){if(!ls(key(),d))return alert("Image trop lourde pour ce téléphone.");applyWp()}).catch(function(){alert("Image illisible.")})};i.click()}
+function addMenu(p){if(p.dataset.v23)return;p.dataset.v23="1";
+ var a=document.createElement("button");a.type="button";a.textContent="🖼️ Fond d’écran du chat";a.onclick=function(e){e.stopPropagation();p.remove();pick()};p.appendChild(a);
+ if(ls(key())){var b=document.createElement("button");b.type="button";b.textContent="🗑️ Retirer le fond d’écran";b.onclick=function(e){e.stopPropagation();p.remove();ls(key(),null);applyWp()};p.appendChild(b)}}
+/* ---- distance sur les positions partagées ---- */
+var POS=null,POST=0,ERRT=0,ask=false;
+function hav(a,b,c,d){var x=Math.PI/180,p=(c-a)*x,q=(d-b)*x,h=Math.sin(p/2)*Math.sin(p/2)+Math.cos(a*x)*Math.cos(c*x)*Math.sin(q/2)*Math.sin(q/2);return 12742000*Math.asin(Math.sqrt(h))}
+function fmt(m){if(m<10)return "moins de 10 m";if(m<1000)return Math.round(m/10)*10+" m";if(m<10000)return (m/1000).toFixed(1).replace(".",",")+" km";return Math.round(m/1000)+" km"}
+function where(){var n=Date.now();if(POS&&n-POST<60000)return true;if(ask||!navigator.geolocation||n-ERRT<300000)return !!POS;ask=true;
+ navigator.geolocation.getCurrentPosition(function(p){ask=false;POS=[p.coords.latitude,p.coords.longitude];POST=Date.now();scan()},function(){ask=false;ERRT=Date.now()},{enableHighAccuracy:false,maximumAge:60000,timeout:15000});return !!POS}
+function scan(){var cs=document.querySelectorAll(".lcard[data-lat]:not([data-d])");if(!cs.length||!where())return;
+ cs.forEach(function(c){c.setAttribute("data-d","1");var m=hav(POS[0],POS[1],+c.dataset.lat,+c.dataset.lon),b=c.querySelector("b");if(!b||isNaN(m))return;
+  var s=document.createElement("span");s.className="ldist";s.textContent=c.dataset.u===uid()?"📏 Tu es à "+fmt(m)+" de cette position":"📏 À "+fmt(m)+" de toi";b.appendChild(s)})}
+var raf=0;new MutationObserver(function(ml){if(raf)return;raf=requestAnimationFrame(function(){raf=0;
+ var p=document.querySelector(".eb-pop");if(p)addMenu(p);scan()})}).observe(document.body,{childList:true,subtree:true});
+setInterval(applyWp,1500);applyWp();
+})();
+</script>
+
 </body>
 </html>
