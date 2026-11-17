@@ -3596,6 +3596,24 @@ sync();
 })();
 </script>
 <script id="calls">
+/* ===== Correctif son des appels : vrai <audio> + relance si le navigateur bloque ===== */
+window.LTAUD=function(host,stream,old){
+  try{
+    var a=old;
+    if(!a){a=document.createElement("audio");a.autoplay=true;a.setAttribute("playsinline","");a.setAttribute("data-ltaud","1");(host||document.body).appendChild(a)}
+    if(a.srcObject!==stream)a.srcObject=stream;
+    a.muted=false;a.volume=1;
+    var go=function(){var p;try{p=a.play()}catch(e){}
+      if(p&&p.catch)p.catch(function(){
+        if(a._w)return;a._w=1;
+        try{toast("Touche l’écran pour activer le son de l’appel.")}catch(x){}
+        var re=function(){a._w=0;document.removeEventListener("pointerdown",re,true);document.removeEventListener("touchend",re,true);go()};
+        document.addEventListener("pointerdown",re,true);document.addEventListener("touchend",re,true)
+      })};
+    go();return a;
+  }catch(e){return old||null}
+};
+
 /* ===== Appels vocaux / vidéo 1-à-1 (E-BOX) — WebRTC, signalisation via Firestore (gratuit) ===== */
 (function () {
   "use strict";
@@ -3606,9 +3624,9 @@ sync();
   ];
   if (window.LT_TURN) ICE = ICE.concat(window.LT_TURN);
   var RING_MS = 45000;
-  var pc = null, stream = null, rStream = null, dc = null, vTr = null, cid = null, peer = null, peerName = "", peerPhoto = "", kind = "audio", role = "", busy = false;
+  var delT = {}; var pc = null, stream = null, rStream = null, dc = null, vTr = null, cid = null, peer = null, peerName = "", peerPhoto = "", kind = "audio", role = "", busy = false;
   var dismissed = {}, unIn = null, unOut = null, ui = null, tRing = null, tClock = null, tMeter = null, t0 = 0, ringer = null, ended = false, sent = false, answered = false, incoming = null;
-  var facing = "user", myMic = true, rMic = true, rCamFlag = null, swapped = false, mini = false, AC = null, anL = null, anR = null, lvL = 0, lvR = 0;
+  var rAud = null, facing = "user", myMic = true, rMic = true, rCamFlag = null, swapped = false, mini = false, AC = null, anL = null, anR = null, lvL = 0, lvR = 0;
 
   var now = function () { return typeof NOW === "function" ? NOW() : Date.now(); };
   var myId = function () { return typeof USER !== "undefined" && USER ? USER.uid : ""; };
@@ -3878,7 +3896,8 @@ sync();
     }
     pc.ontrack = function (e) {
       rStream.addTrack(e.track);
-      var r = ui && ui.querySelector("#ltc-r"); if (r && r.srcObject !== rStream) { r.srcObject = rStream; var p = r.play(); if (p && p.catch) p.catch(function () { }); }
+      var r = ui && ui.querySelector("#ltc-r"); if (r && r.srcObject !== rStream) { r.srcObject = rStream; r.muted = true; var p = r.play(); if (p && p.catch) p.catch(function () { }); }
+      if (ui) { rAud = window.LTAUD(ui, rStream, rAud); }
       if (e.track.kind === "video") { e.track.onunmute = function () { shown = ""; layout(); }; e.track.onmute = function () { shown = ""; layout(); }; }
     };
     pc.onconnectionstatechange = function () {
@@ -3897,9 +3916,15 @@ sync();
   }
   function gathered() {
     return new Promise(function (res) {
-      if (pc.iceGatheringState === "complete") return res();
-      var t = setTimeout(res, 5000);
-      pc.addEventListener("icegatheringstatechange", function f() { if (pc.iceGatheringState === "complete") { clearTimeout(t); pc.removeEventListener("icegatheringstatechange", f); res(); } });
+      var p = pc; if (p.iceGatheringState === "complete") return res();
+      var done = false, t1 = null, tMax = null;
+      function fin() { if (done) return; done = true; clearTimeout(t1); clearTimeout(tMax); try { p.removeEventListener("icecandidate", onc); p.removeEventListener("icegatheringstatechange", ong); } catch (e) { } res(); }
+      function onc(e) { var c = e.candidate; if (!c) return fin(); var t = c.type || ((/ typ (\w+)/.exec(c.candidate || "") || [])[1]); if (t === "relay") { clearTimeout(t1); t1 = setTimeout(fin, 300); } else if (t === "srflx" && !t1) { t1 = setTimeout(fin, 1200); } }
+      function ong() { if (p.iceGatheringState === "complete") fin(); }
+      var sdp = (p.localDescription && p.localDescription.sdp) || "";
+      if (/ typ relay/.test(sdp)) t1 = setTimeout(fin, 300); else if (/ typ srflx/.test(sdp)) t1 = setTimeout(fin, 1200);
+      tMax = setTimeout(fin, 3500);
+      p.addEventListener("icecandidate", onc); p.addEventListener("icegatheringstatechange", ong);
     });
   }
   function live() {
@@ -3914,7 +3939,7 @@ sync();
     if (!ok()) return say("Connecte-toi avec ton compte élève pour appeler.");
     if (busy) return say("Tu es déjà en appel.");
     if (!window.RTCPeerConnection) return say("Ton navigateur ne gère pas les appels.");
-    busy = true; ended = false; sent = false; answered = false; t0 = 0; role = "out"; peer = u; peerName = name || "Élève"; peerPhoto = photo || ""; kind = k; cid = pairId(myId(), u); facing = "user";
+    busy = true; ended = false; sent = false; answered = false; t0 = 0; role = "out"; peer = u; peerName = name || "Élève"; peerPhoto = photo || ""; kind = k; cid = pairId(myId(), u); clearTimeout(delT[cid]); facing = "user";
     showUI("out"); status("Préparation…");
     try { stream = await media(k); } catch (e) { say(mediaErr(e)); return cleanup(); }
     if (ended) return;
@@ -3955,7 +3980,7 @@ sync();
         return;
       }
       watchIn._said = 0;
-      var d = l.filter(function (x) { return x.state === "ringing" && !dismissed[x.id] && Math.abs(now() - (x.at || 0)) < 120000; })[0];
+      var d = l.filter(function (x) { return x.state === "ringing" && dismissed[x.id] !== x.at && Math.abs(now() - (x.at || 0)) < 120000; })[0];
       if (incoming && (!d || d.id !== incoming.id)) {
         if (role === "in" && !answered && busy && !ended) { say("Appel manqué de " + peerName); try { window.LTN && document.hidden && LTN.show("📞 Appel manqué", peerName, "lt-miss"); } catch (e) { } finish("missed", false); }
         incoming = null;
@@ -3992,20 +4017,20 @@ sync();
       await DB.set("calls/" + cid, { state: "accepted", answer: JSON.stringify(pc.localDescription) }, true);
     } catch (e) { console.warn("accept", e); say("Impossible de répondre."); finish("error", true); }
   }
-  function decline() { var id = cid; if (id) dismissed[id] = Date.now(); finish("declined", false, false); if (id) DB.set("calls/" + id, { state: "declined" }, true).catch(function (e) { console.warn("decline", e); say("Refus non transmis au serveur (règles Firestore « calls »)."); }); }
+  function decline() { var id = cid; if (id && incoming) dismissed[id] = incoming.at; finish("declined", false, false); if (id) DB.set("calls/" + id, { state: "declined" }, true).catch(function (e) { console.warn("decline", e); say("Refus non transmis au serveur (règles Firestore « calls »)."); }); }
 
   /* ---------- fin ---------- */
   function hangup() { finish("hangup", true, role === "out" && !answered); }
   function finish(why, notify, missed) {
-    if (ended) return; ended = true; if (cid) dismissed[cid] = Date.now(); var id = cid, wasLive = t0, dur = t0 ? Math.round((Date.now() - t0) / 1000) : 0, r = role, p = peer, k = kind;
+    if (ended) return; ended = true; if (cid && role === "in" && incoming) dismissed[cid] = incoming.at; var id = cid, wasLive = t0, dur = t0 ? Math.round((Date.now() - t0) / 1000) : 0, r = role, p = peer, k = kind;
     if (notify && id) DB.set("calls/" + id, { state: "ended" }, true).catch(function () { });
     if (missed && r === "out" && p) DB.add("sdm/" + pairId(myId(), p) + "/m", { uid: myId(), text: (k === "video" ? "📹 Appel vidéo" : "📞 Appel vocal") + " manqué", createdAt: now() }).catch(function () { });
     if (r === "out" && wasLive && p) { var m = Math.floor(dur / 60), s = dur % 60; DB.add("sdm/" + pairId(myId(), p) + "/m", { uid: myId(), text: (k === "video" || camOnNow() ? "📹 Appel vidéo · " : "📞 Appel vocal · ") + m + " min " + s + " s", createdAt: now() }).catch(function () { }); }
     cleanup();
-    if (id && (r === "out" || notify)) setTimeout(function () { DB.del("calls/" + id).catch(function () { }); }, 4000);
+    if (id && (r === "out" || notify)) { clearTimeout(delT[id]); delT[id] = setTimeout(function () { DB.del("calls/" + id).catch(function () { }); }, 4000); }
   }
   function cleanup() {
-    ring(false); clearTimeout(tRing); clearInterval(tClock); clearInterval(tMeter); tClock = tMeter = null; anL = anR = null; lvL = lvR = 0;
+    ring(false); clearTimeout(tRing); clearInterval(tClock); clearInterval(tMeter); tClock = tMeter = null; anL = anR = null; lvL = lvR = 0; try { if (rAud) { rAud.srcObject = null; rAud.remove(); } } catch (e) { } rAud = null;
     if (unOut) { unOut(); unOut = null; }
     try { if (pc) { pc.onconnectionstatechange = null; pc.close(); } } catch (e) { } pc = null; dc = null; vTr = null;
     try { if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { } stream = null; rStream = null;
@@ -4187,7 +4212,9 @@ sync();
     var r = st.peers[pid], pc = new RTCPeerConnection({ iceServers: ICE }); r.pc = pc; r.stream = new MediaStream(); r.vs = null; r.an = null;
     pc.ontrack = function (e) {
       r.stream.addTrack(e.track);
-      var t = tile(pid, r.name), v = t.querySelector("video"); if (v.srcObject !== r.stream) { v.srcObject = r.stream; var p = v.play(); if (p && p.catch) p.catch(function () { }); }
+      var t = tile(pid, r.name), v = t.querySelector("video"); if (v.srcObject !== r.stream) { v.srcObject = r.stream; v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () { }); }
+      if (st && st.ui) { r.au = window.LTAUD(st.ui, r.stream, r.au); }
+      try { if (AC && AC.state === "suspended") AC.resume(); } catch (x) { }
       if (e.track.kind === "audio") { try { var C = window.AudioContext || window.webkitAudioContext; if (!AC) AC = new C(); r.an = AC.createAnalyser(); r.an.fftSize = 512; AC.createMediaStreamSource(new MediaStream([e.track])).connect(r.an); } catch (x) { } }
       if (e.track.kind === "video") { e.track.onmute = e.track.onunmute = function () { camShown(pid, r.stream); }; camShown(pid, r.stream); }
     };
@@ -4201,7 +4228,7 @@ sync();
   }
   function dropPeer(pid) {
     if (!st) return; var r = st.peers[pid]; if (!r) return; delete st.peers[pid];
-    try { if (r.pc) { r.pc.onconnectionstatechange = null; r.pc.close(); } } catch (e) { }
+    try { if (r.pc) { r.pc.onconnectionstatechange = null; r.pc.close(); } } catch (e) { } try { if (r.au) { r.au.srcObject = null; r.au.remove(); } } catch (e) { }
     var t = st.ui.querySelector('[data-u="' + pid + '"]'); if (t) t.remove(); lay();
   }
   function iOffer(p) { return st.joined > (p.joined || 0) || (st.joined === (p.joined || 0) && st.uid > p.id); }
