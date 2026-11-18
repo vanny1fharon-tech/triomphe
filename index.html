@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Lycée Privé Le Triomphe – Fondation Lewaï, Franceville (Gabon)</title>
-<meta name="app-version" content="30">
+<meta name="app-version" content="36">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <meta name="description" content="Site officiel du Lycée Privé Le Triomphe (Fondation Lewaï) à Franceville, Gabon : annonces, emplois du temps, événements, espace élèves et enseignants.">
@@ -18,6 +18,8 @@
 <meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="Lycée Privé Le Triomphe – Franceville, Gabon">
 <meta property="og:description" content="Annonces, emplois du temps, événements et espace élèves du Lycée Privé Le Triomphe (Fondation Lewaï).">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#0b4a1f">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"EducationalOrganization","name":"Lycée Privé Le Triomphe","url":"https://vanny1fharon-tech.github.io/triomphe/","alternateName":"Lycée Le Triomphe – Fondation Lewaï","address":{"@type":"PostalAddress","addressLocality":"Franceville","addressRegion":"Haut-Ogooué","addressCountry":"GA"}}
@@ -781,7 +783,7 @@ window.LTB={MAX:5000000,bo:{},
 <li>Élève qui oublie son mot de passe : supprimer son compte dans Firebase → Authentication, il se réinscrit.</li>
 <li>Nettoyage automatique : stories 24 h, publications des élèves 14 jours, annonces de l’administration 7 jours. Site 100 % gratuit : pas de Firebase Storage. Les photos (et les petits PDF des groupes de classe) sont enregistrés dans Firestore ; les vidéos et sons du réseau Élève NEW sont envoyés vers Cloudinary (gratuit) : Firestore ne garde que le lien. Limites gratuites Firebase (plan Spark) : 50 000 lectures et 20 000 écritures par jour pour tout le lycée.</li>
 </ul>
-<h2>Nouveautés à connaître</h2><ul><li><b>Absences</b> : onglet « Appel » (enseignants et administration), visibles par l’élève seulement.</li><li><b>Parents</b> : ils s’inscrivent sous leur propre nom avec leur compte Google (onglet « Parent »), puis tu les valides dans Administration → Personnel et parents. Un parent ne voit que les annonces : il peut les aimer et les commenter, rien d’autre.</li><li><b>Groupes</b> : un enseignant n’accède qu’au groupe de sa matière dans ses classes. Après avoir modifié les emplois du temps, ouvre Administration → Emplois du temps et enregistre pour mettre à jour l’index des enseignants.</li><li><b>Mot de passe « Élèves NEW »</b> : vérifié par le serveur (l’empreinte n’est lisible par personne) ; l’accès dure 12 h.</li><li><b>Envois</b> : vidéos, sons et fichiers jusqu’à 100 Mo. Les messages texte n’ont pas de limite pratique.</li><li><b>Un seul appareil</b> par compte à la fois (élèves, enseignants, parents).</li><li><b>Mot de passe oublié (élève)</b> : Administration → Élèves → « Réinitialiser l’accès », l’élève se réinscrit.</li><li><b>Signalements</b> : les élèves signalent un message ou commentaire, l’administration le supprime ou l’ignore. On peut aussi suspendre un compte.</li><li><b>PDF</b> dans les groupes : 650 Ko maximum chacun.</li><li><b>Alertes</b> : elles fonctionnent quand le site est ouvert dans le navigateur ; une notification même site fermé demanderait un service payant.</li><li><b>Deux élèves qui ont exactement le même nom dans une classe</b> : écris-les différemment dans la liste (ex. « Mba Jean A » et « Mba Jean B ») et ils tapent la même chose à l’inscription.</li><li>Après chaque mise à jour du fichier, <b>recolle aussi les règles</b> dans Firebase.</li></ul>
+<h2>Nouveautés à connaître</h2><ul><li><b>Absences</b> : chaque enseignant fait l’appel de sa séance (onglet « Appel ») ; l’administration (Administration → Absences) vérifie puis publie. Une fois publiée : les élèves voient les absents de leur classe, les enseignants ceux de leurs classes, et chaque parent seulement ses enfants.</li><li><b>Parents</b> : ils s’inscrivent sous leur propre nom avec leur compte Google (onglet « Parent »), puis tu les valides dans Administration → Personnel et parents. À l’inscription, le parent indique ses enfants (ils doivent déjà avoir un compte élève, sinon échec). Tu valides parent et enfants ; il voit alors les absences et l’emploi du temps publiés de ses enfants, et les annonces (case « Visible par les parents » à décocher pour en cacher).</li><li><b>Groupes</b> : un enseignant n’accède qu’au groupe de sa matière dans ses classes. Après avoir modifié les emplois du temps, ouvre Administration → Emplois du temps et enregistre pour mettre à jour l’index des enseignants.</li><li><b>Mot de passe « Élèves NEW »</b> : vérifié par le serveur (l’empreinte n’est lisible par personne) ; l’accès dure 12 h.</li><li><b>Envois</b> : vidéos, sons et fichiers jusqu’à 100 Mo. Les messages texte n’ont pas de limite pratique.</li><li><b>Un seul appareil</b> par compte à la fois (élèves, enseignants, parents).</li><li><b>Mot de passe oublié (élève)</b> : Administration → Élèves → « Réinitialiser l’accès », l’élève se réinscrit.</li><li><b>Signalements</b> : les élèves signalent un message ou commentaire, l’administration le supprime ou l’ignore. On peut aussi suspendre un compte.</li><li><b>PDF</b> dans les groupes : 650 Ko maximum chacun.</li><li><b>Alertes</b> : elles fonctionnent quand le site est ouvert dans le navigateur ; une notification même site fermé demanderait un service payant.</li><li><b>Deux élèves qui ont exactement le même nom dans une classe</b> : écris-les différemment dans la liste (ex. « Mba Jean A » et « Mba Jean B ») et ils tapent la même chose à l’inscription.</li><li>Après chaque mise à jour du fichier, <b>recolle aussi les règles</b> dans Firebase.</li></ul>
 <h2>Règles de sécurité (étape 1.4)</h2><p>Les règles ne sont plus affichées dans cette page (elles contenaient les adresses des administrateurs). Utilise le fichier <code>firestore.rules</code> (Firestore → Règles) fourni à part. Il n’y a pas de règles Storage : Storage n’est pas utilisé.</p>
 
 </section>
@@ -839,7 +841,7 @@ function fmt(d, o) { try { if (!/^\d{4}-\d{2}-\d{2}/.test(d)) return d; return n
 function fmtTs(t) { try { return new Date(t).toLocaleDateString("fr-FR", { timeZone: TZ, day: "numeric", month: "long", year: "numeric" }); } catch (e) { return ""; } }
 function ago(t) { const s = Math.floor((NOW() - t) / 1000); if (s < 60) return "à l’instant"; if (s < 3600) return "il y a " + Math.floor(s / 60) + " min"; if (s < 86400) return "il y a " + Math.floor(s / 3600) + " h"; return fmtTs(t); }
 function dhm(t) { const o = LP(t); return o.day + "/" + o.month + " " + o.hour + ":" + o.minute; }
-const liveAnn = a => !(a.until && todayISO() > a.until);
+const liveAnn = a => !(a.until && todayISO() > a.until) && !(ME && ME.role === "parent" && a.par === false);
 function homeClock() { const el = document.getElementById("hclock"); if (!el) return; const d = new Date(NOW()), s = d.toLocaleDateString("fr-FR", { timeZone: TZ, weekday: "long", day: "numeric", month: "long", year: "numeric" }), h = d.toLocaleTimeString("fr-FR", { timeZone: TZ, hour: "2-digit", minute: "2-digit", second: "2-digit" }); el.innerHTML = '<span>🕒 ' + s.charAt(0).toUpperCase() + s.slice(1) + '</span><b>' + h + '</b><small>Heure de Libreville (GMT+1)</small>'; }
 async function syncClock() { try { if (!/^https?:/.test(location.protocol)) { homeClock(); return; } const r = await fetch(location.href.split("#")[0], { method: "HEAD", cache: "no-store" }), h = r.headers.get("date"), t = h ? Date.parse(h) : 0; if (t) CLK = t - Date.now(); } catch (e) { } homeClock(); }
 const norm = s => String(s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -916,7 +918,10 @@ async function fbInit() {
   const B = "https://www.gstatic.com/firebasejs/10.12.2/";
   const m = await Promise.all([import(B + "firebase-app.js"), import(B + "firebase-auth.js"), import(B + "firebase-firestore.js"), Promise.resolve(null)]);
   const A = m[0], Au = m[1], F = m[2], St = m[3];
-  const app = A.initializeApp(FIREBASE_CONFIG), auth = Au.getAuth(app);
+  const app = A.initializeApp(FIREBASE_CONFIG);
+  /* v37 : App Check (Fraud Defense / reCAPTCHA Enterprise) — prouve à Firebase que l’appel vient de ce site. L’obligation s’active ensuite dans la console Firebase. */
+  try { const AC = await import(B + "firebase-app-check.js"); AC.initializeAppCheck(app, { provider: new AC.ReCaptchaEnterpriseProvider("6LfNiCUuAAAAANJns-Y2NZOCL9Xeqfs5fy8zMA-_"), isTokenAutoRefreshEnabled: true }); } catch (e) { console.warn("AppCheck", e); }
+  const auth = Au.getAuth(app);
   const db = F.initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
   const dref = p => F.doc(db, ...p.split("/")), cref = p => F.collection(db, ...p.split("/"));
   const mkq = (c, o) => { const q = []; if (o && o.where) q.push(F.where(o.where[0], o.where[1], o.where[2])); if (o && o.order) q.push(F.orderBy(o.order, o.dir || "asc")); if (o && o.limit) q.push(F.limit(o.limit)); return F.query(cref(c), ...q); };
@@ -941,6 +946,7 @@ async function fbInit() {
     google: async () => { const pr = new Au.GoogleAuthProvider(); pr.setCustomParameters({ prompt: "login" }); return (await Au.signInWithPopup(auth, pr)).user.uid; },
     signOut: async () => { try { if (auth.currentUser) await F.deleteDoc(dref("sunlock/" + auth.currentUser.uid)); } catch (e) { } return Au.signOut(auth); },
     onChange: f => Au.onAuthStateChanged(auth, u => f(u ? { uid: u.uid, email: u.email } : null)),
+    linkPw: async (e, p) => { await Au.linkWithCredential(auth.currentUser, Au.EmailAuthProvider.credential(e, p)); },
     reset: e => Au.sendPasswordResetEmail(auth, e),
     changePassword: p => Au.updatePassword(auth.currentUser, p)
   };
@@ -1195,8 +1201,8 @@ function authHTML() {
   const msg = id => '<p class="msg" id="' + id + '" role="alert"></p>';
   const req = h => h.replace(/<input id="(\w+-[np])"/g, '<input id="$1" required');
   const f = formId();
-  if (f === "pl") h += '<h3>Connexion parent</h3><p class="todo">Connecte-toi avec ton compte Google, sous ton propre nom. Tu pourras lire les annonces, les aimer et les commenter. Rien d’autre.</p><form data-form="pl"><p><button class="btn dark" type="submit" style="margin-top:14px">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
-  if (f === "pr") h += '<h3>Inscription parent</h3><p class="todo">Écris ton nom et ton prénom (les tiens, pas ceux de ton enfant), puis continue avec Google. Ton compte sera validé par le proviseur ou le censeur.</p><form data-form="pr">' + idf("pr") + '<p><button class="btn dark" type="submit" style="margin-top:14px">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
+  if (f === "pl") h += '<h3>Connexion parent</h3><p class="todo">Écris ton nom et ton prénom, laisse le mot de passe vide puis appuie sur « Se connecter » : pose ton doigt (ou visage / code du téléphone). Première fois sur ce téléphone ? Continue avec Google.</p><form data-form="pl">' + req(idf("pl")) + pwf("pl", false, "Mot de passe (vide = empreinte)") + sub("Se connecter") + '<p><button class="btn alt" type="button" data-pg="1" style="color:#0b4a1f;border-color:#0b4a1f">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
+  if (f === "pr") h += '<h3>Inscription parent</h3><p class="todo">Écris ton nom et ton prénom (les tiens), indique tes enfants, puis continue avec Google. Ton compte sera validé par le proviseur ou le censeur.</p><form data-form="pr">' + idf("pr") + ABS.kidsBlock("pk", 1) + pwf("pr", true, "Crée ton mot de passe") + '<p><button class="btn dark" type="submit" style="margin-top:14px">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
   if (f === "sl") h += '<h3>Connexion élève</h3><form data-form="sl">' + req(idf("sl")) + clsf("sl") + pwf("sl", false) + sub("Se connecter") + '<p><button class="lnk" type="button" data-s="forgot">Mot de passe oublié ? Utiliser ma réponse secrète</button></p>' + msg("sl-m") + '</form>';
   if (f === "so") {
     h += '<h3>Accès avec ma réponse secrète</h3>';
@@ -1430,13 +1436,13 @@ function renderSpace() {
   if (!ME) { el.innerHTML = fixHTML(out); return; }
   if (ME.blocked) { el.innerHTML = '<div class="card who"><span class="todo">Ce compte est suspendu. Contacte l’administration du lycée.</span>' + out + '</div>'; return; }
   if ((ME.role === "prof" || ME.role === "parent") && !ME.approved) { el.innerHTML = '<div class="card who"><div><b>' + esc(ME.prenom + " " + ME.nom) + '</b><br><span class="todo">Compte en attente de validation par le proviseur ou le censeur. Reviens un peu plus tard.</span></div>' + out + '</div>'; return; }
-  if (ME.role === "parent") { el.innerHTML = '<div class="card who"><div><b>' + esc(ME.prenom + " " + ME.nom) + '</b> ' + badge("parent") + '<br><span class="todo">Compte parent : tu peux lire les annonces, les aimer et les commenter.</span></div>' + out + '</div><p><a class="btn dark" href="#annonces" style="display:inline-block;text-decoration:none">📢 Voir les annonces</a></p>'; return; }
+  if (ME.role === "parent") { ABS.parentSpace(el, out); return; }
   const al = allowedClasses();
   if (!SCLASS || !al.some(c => c.id === SCLASS)) SCLASS = al[0] ? al[0].id : null;
   const w = who();
-  const tabs = ME.role === "eleve" ? [["tt", "Emploi du temps"], ["gr", "Groupes"], ["sx", NWI + " Élèves NEW"], ["nt", "Calcul des moyennes"], ["qc", "QCM"], ["pf", "👤 Mon profil"]]
+  const tabs = ME.role === "eleve" ? [["tt", "Emploi du temps"], ["gr", "Groupes"], ["sx", NWI + " Élèves NEW"], ["ab", "🕒 Absences"], ["nt", "Calcul des moyennes"], ["qc", "QCM"], ["pf", "👤 Mon profil"]]
     : ME.role === "parent" ? []
-      : [["tt", "Emplois du temps"], ["gr", "Groupes"], ["qc", "QCM"], ["no", "Notes"], ["st", "👥 Équipe"]].concat(ME.role === "prof" ? [["ct", "✉️ Administration"]] : []);
+      : [["tt", "Emplois du temps"], ["gr", "Groupes"]].concat(ME.role === "prof" ? [["ap", "📝 Appel"]] : []).concat([["qc", "QCM"], ["no", "Notes"], ["st", "👥 Équipe"]]).concat(ME.role === "prof" ? [["ct", "✉️ Administration"]] : []);
   if (tabs.every(t => t[0] !== STAB)) STAB = "tt";
   const staff = ME.role === "admin" || ME.role === "prof";
   $("sp-h").hidden = true;
@@ -1466,7 +1472,7 @@ async function wipeSocial(uid) {
   for (const side of ["from", "to"]) await each("calls", { where: [side, "==", uid] }, async d => del("calls/" + d.id));
 }
 function dashHTML(w, tabs) {
-  const T = [["tt", "ic_calclock", "Mon Emploi du Temps", "Consulter votre emploi du temps"], ["nt", "ic_notes", "Calcul des moyennes", "Calculer tes moyennes"], ["@ann", "ic_mega2", "Annonces", "Voir les dernières informations"], ["pf", "ic_gear", "Mon Profil", "Gérer votre compte"]];
+  const T = [["tt", "ic_calclock", "Mon Emploi du Temps", "Consulter votre emploi du temps"], ["nt", "ic_notes", "Calcul des moyennes", "Calculer tes moyennes"], ["@ann", "ic_mega2", "Annonces", "Voir les dernières informations"], ["ab", "ic_calclock", "Mes absences", "Absences de ma classe"], ["pf", "ic_gear", "Mon Profil", "Gérer votre compte"]];
   const l = ANN.filter(liveAnn).sort((a, b) => b.createdAt - a.createdAt)[0], on = navigator.onLine !== false;
   return '<div class="welcome"><div class="av' + (window.myPh && myPh() ? " ph" : "") + '" id="myav" role="button" tabindex="0" aria-label="Changer ma photo"' + (window.myPh && myPh() ? ' style="background-image:url(' + myPh() + ')"' : "") + '>' + (window.myPh && myPh() ? "" : "👤") + '</div><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Que la connaissance soit ta force !</div></div><span class="online' + (on ? "" : " off") + '">' + (on ? "En ligne" : "Hors ligne") + '</span></div>' +
     '<div class="tiles6">' + T.map(t => '<button class="dt" type="button" data-s="' + (t[0] === "@ann" ? "toann" : "dtab") + '" data-v="' + t[0] + '"><img class="di" src="' + AIMG[t[1]] + '" alt=""><b>' + t[2] + '</b><span>' + t[3] + '</span></button>').join("") + '</div>' +
@@ -1475,7 +1481,7 @@ function dashHTML(w, tabs) {
     '<div class="dfoot"><img src="' + AIMG.foot_espace + '" alt="Ensemble vers l’excellence" width="700" height="141"></div>';
 }
 function profDash(w, tabs, al) {
-  const T = [["tt", "p_tt", "Emploi du temps", "Voir mon planning"], ["gr", "p_cl", "Mes classes", "Gérer mes classes"], ["no", "p_nt", "Notes", "Saisir et consulter"], ["qc", "p_qc", "QCM", "Créer des évaluations"], ["ct", "p_co", "Communications", "Écrire à la censure ou au proviseur", 1]], on = navigator.onLine !== false;
+  const T = [["tt", "p_tt", "Emploi du temps", "Voir mon planning"], ["gr", "p_cl", "Mes classes", "Gérer mes classes"], ["ap", "p_nt", "Appel", "Saisir les absents"], ["no", "p_nt", "Notes", "Saisir et consulter"], ["qc", "p_qc", "QCM", "Créer des évaluations"], ["ct", "p_co", "Communications", "Écrire à la censure ou au proviseur", 1]], on = navigator.onLine !== false;
   return '<div class="welcome pw"><img class="av" src="' + AIMG.p_av + '" alt="" width="72" height="72"><div><div class="hi">Bienvenue,</div><div class="nm">' + esc(w.name) + '</div><div class="sl">Enseignant' + (ME.matiere ? '<br>Matière : ' + esc(ME.matiere) : "") + '</div></div><button type="button" class="outb" data-s="logout">↪ Se déconnecter</button></div>' +
     '<div class="ph"><span>🎓</span>Mes outils<i></i></div>' +
     '<div class="ptools">' + T.map(t => '<button type="button" class="pt' + (t[4] ? " wide" : "") + '" data-s="dtab" data-v="' + t[0] + '"><img src="' + AIMG[t[1]] + '" alt=""><span><b>' + t[2] + '</b>' + t[3] + '</span></button>').join("") + '</div>' +
@@ -1724,7 +1730,7 @@ function renderAdmin() {
   const box = $("adm"); if (!isAdmin()) { box.innerHTML = ""; return; }
   const ch = isChief(); if (!ch && (ATAB === "pf" || ATAB === "in")) ATAB = "db";
   const nm = CONTACTS.filter(c => !c.reply).length;
-  const T = [["db", "🏠", "Tableau de bord"], ["el", "👥", "Gestion des élèves"], ["pf", "🧑‍🏫", "Enseignants et parents", 1], ["tt", "🏫", "Emplois du temps et classes"], ["ann", "📢", "Annonces"], ["po", "📊", "Sondages"], ["ev", "📅", "Événements"], ["ga", "🖼️", "Galerie"], ["ho", "🏆", "Honneur"], ["ex", "📝", "Examens"], ["pi", "📋", "Pré-inscriptions"], ["ms", "✉️", "Messages" + (nm ? " (" + nm + ")" : "")], ["rp", "🚩", "Signalements" + (REPORTS.length ? " (" + REPORTS.length + ")" : "")], ["in", "⚙️", "Paramètres", 1]];
+  const T = [["db", "🏠", "Tableau de bord"], ["el", "👥", "Gestion des élèves"], ["pf", "🧑‍🏫", "Enseignants et parents", 1], ["tt", "🏫", "Emplois du temps et classes"], ["ann", "📢", "Annonces"], ["po", "📊", "Sondages"], ["ev", "📅", "Événements"], ["ga", "🖼️", "Galerie"], ["ho", "🏆", "Honneur"], ["ex", "📝", "Examens"], ["ab", "📝", "Absences"], ["pi", "📋", "Pré-inscriptions"], ["ms", "✉️", "Messages" + (nm ? " (" + nm + ")" : "")], ["rp", "🚩", "Signalements" + (REPORTS.length ? " (" + REPORTS.length + ")" : "")], ["in", "⚙️", "Paramètres", 1]];
   box.innerHTML = '<div class="adm-shell"><aside class="adm-side" aria-label="Menu administration">' + T.filter(t => ch || !t[3]).map(t => '<button type="button" class="' + (t[0] === ATAB ? "on" : "") + '" data-a="tab" data-v="' + t[0] + '"><span class="ei">' + t[1] + '</span>' + t[2] + '</button>').join("") + '<button type="button" data-a="alogout"><span class="ei">↩️</span>Déconnexion</button><div class="adm-moto"><img src="' + AIMG.emblem + '" alt=""><i>Ensemble vers l’excellence</i></div></aside><div class="adm-main"><div id="atab"></div><div class="adm-list" id="adm-list"></div></div></div>';
   ADMIMG = ""; adminTab();
 }
@@ -1732,7 +1738,7 @@ const opts = (a, sel) => a.map(x => '<option' + (x === sel ? " selected" : "") +
 async function adminTab() {
   const t = $("atab"); if (!t) return;
   if (adminExtraTab(t)) { adminList(); return; }
-  if (ATAB === "ann") t.innerHTML = '<div class="card"><label for="f-t">Titre</label><input id="f-t"><label for="f-x">Message</label><textarea id="f-x" rows="4"></textarea>'+nwBar("adm")+'<label for="f-c">Catégorie</label><select id="f-c">' + opts(["Publication", "Vie scolaire", "Examens", "Important"]) + '</select><label for="f-u">Afficher jusqu’au (facultatif : l’annonce disparaît ensuite)</label><input id="f-u" type="date"><label for="f-i">Image (facultatif)</label><input id="f-i" type="file" accept="image/*"><div class="imgprev" id="f-pv"></div><p><button class="btn dark" data-a="addann" style="margin-top:12px">Publier</button></p></div>';
+  if (ATAB === "ann") t.innerHTML = '<div class="card"><label for="f-t">Titre</label><input id="f-t"><label for="f-x">Message</label><textarea id="f-x" rows="4"></textarea>'+nwBar("adm")+'<label for="f-c">Catégorie</label><select id="f-c">' + opts(["Publication", "Vie scolaire", "Examens", "Important"]) + '</select><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="f-par" type="checkbox" checked style="width:auto"> Visible par les parents</label><label for="f-u">Afficher jusqu’au (facultatif : l’annonce disparaît ensuite)</label><input id="f-u" type="date"><label for="f-i">Image (facultatif)</label><input id="f-i" type="file" accept="image/*"><div class="imgprev" id="f-pv"></div><p><button class="btn dark" data-a="addann" style="margin-top:12px">Publier</button></p></div>';
   if (ATAB === "po") t.innerHTML = '<div class="card"><label for="f-t">Question</label><input id="f-t"><label for="f-x">Choix de réponse (un par ligne, 2 à 6)</label><textarea id="f-x" rows="4"></textarea><p><button class="btn dark" data-a="addpoll" style="margin-top:12px">Publier le sondage</button></p></div>';
   if (ATAB === "ev") t.innerHTML = '<div class="card"><label for="f-t">Titre</label><input id="f-t"><label for="f-d">Date</label><input id="f-d" type="date" value="' + todayISO() + '"><label for="f-l">Lieu</label><input id="f-l"><label for="f-x">Description</label><textarea id="f-x" rows="2"></textarea><p><button class="btn dark" data-a="addev" style="margin-top:12px">Ajouter l’événement</button></p></div>';
   if (ATAB === "ga") t.innerHTML = '<div class="card"><label for="f-t">Légende (facultatif)</label><input id="f-t"><label for="f-g">Photos (tu peux en choisir plusieurs)</label><input id="f-g" type="file" accept="image/*" multiple><p><button class="btn dark" data-a="addgal" style="margin-top:12px">Ajouter à la galerie</button></p></div>';
@@ -1750,7 +1756,7 @@ async function adminTab() {
 async function adminList() {
   const L = $("adm-list"); if (!L) return;
   if (await adminExtraList(L)) return;
-  if (ATAB === "ann") L.innerHTML = '<h3 style="margin-top:18px">Publications actuelles</h3>' + (ANN.map(a => '<div class="card"><b>' + esc(a.t) + '</b> <span class="tag">' + esc(a.c) + '</span><br><span class="mini">' + fmtTs(a.createdAt) + (a.until ? ' · ' + (liveAnn(a) ? 'visible jusqu’au ' : '⛔ expirée le ') + fmt(a.until) : '') + ' · ♥ ' + LTB.f(a.likeCount || 0) + ' · 💬 ' + (a.commentCount || 0) + '</span><br><button class="chip" data-a="pin" data-v="' + esc(a.id) + '" data-b="' + (a.pinned ? 0 : 1) + '">' + (a.pinned ? "Désépingler" : "📌 Épingler") + '</button><button class="chip" data-a="delann" data-v="' + esc(a.id) + '">Supprimer</button></div>').join("") || todo("Aucune."));
+  if (ATAB === "ann") L.innerHTML = '<h3 style="margin-top:18px">Publications actuelles</h3>' + (ANN.map(a => '<div class="card"><b>' + esc(a.t) + '</b> <span class="tag">' + esc(a.c) + '</span>' + (a.par === false ? ' <span class="tag">🚫 cachée aux parents</span>' : '') + '<br><span class="mini">' + fmtTs(a.createdAt) + (a.until ? ' · ' + (liveAnn(a) ? 'visible jusqu’au ' : '⛔ expirée le ') + fmt(a.until) : '') + ' · ♥ ' + LTB.f(a.likeCount || 0) + ' · 💬 ' + (a.commentCount || 0) + '</span><br><button class="chip" data-a="pin" data-v="' + esc(a.id) + '" data-b="' + (a.pinned ? 0 : 1) + '">' + (a.pinned ? "Désépingler" : "📌 Épingler") + '</button><button class="chip" data-a="delann" data-v="' + esc(a.id) + '">Supprimer</button></div>').join("") || todo("Aucune."));
   else if (ATAB === "db") await adminDash(L);
   else if (ATAB === "po") L.innerHTML = '<h3 style="margin-top:18px">Sondages</h3>' + (POLLS.map(p => '<div class="card"><b>' + esc(p.q) + '</b> ' + (p.open === false ? '<span class="tag">clôturé</span>' : "") + '<br><span class="mini">' + (p.opts || []).map((o, i) => esc(o) + " : " + (p["c" + i] || 0)).join(" · ") + '</span><br><button class="chip" data-a="pollopen" data-v="' + esc(p.id) + '" data-b="' + (p.open === false ? 1 : 0) + '">' + (p.open === false ? "Rouvrir" : "Clôturer") + '</button><button class="chip" data-a="delpoll" data-v="' + esc(p.id) + '">Supprimer</button></div>').join("") || todo("Aucun sondage."));
   else if (ATAB === "ms") L.innerHTML = '<h3 style="margin-top:18px">Messages reçus</h3>' + (CONTACTS.map(c => '<div class="card"><b>' + esc(c.name) + '</b> <span class="tag">' + esc(c.cls) + '</span> <span class="mini">' + ago(c.createdAt) + '</span><br><b>' + esc(c.subject || "(sans sujet)") + '</b><p class="pre">' + esc(c.text) + '</p>' + (c.reply ? '<div class="cmt"><b>Ta réponse</b><p class="pre">' + esc(c.reply) + '</p></div>' : '<textarea id="rp-' + esc(c.id) + '" rows="2" placeholder="Ta réponse…"></textarea><button class="btn dark" style="margin-top:6px" data-a="rep2" data-v="' + esc(c.id) + '">Répondre</button> ') + '<button class="chip" data-a="delcon" data-v="' + esc(c.id) + '">Supprimer</button></div>').join("") || todo("Aucun message."));
@@ -1774,14 +1780,14 @@ async function adminRoster(L) {
 async function adminProfs(L) {
   L.innerHTML = todo("Chargement…");
   try {
-    const [ps, pa, ix] = await Promise.all([DB.list("users", { where: ["role", "==", "prof"] }), DB.list("users", { where: ["role", "==", "parent"] }), DB.list("staffidx").catch(() => [])]); if (ATAB !== "pf") return;
+    const [ps, pa, ix, plk] = await Promise.all([DB.list("users", { where: ["role", "==", "prof"] }), DB.list("users", { where: ["role", "==", "parent"] }), DB.list("staffidx").catch(() => []), DB.list("parentlinks").catch(() => [])]); if (ATAB !== "pf") return;
     const regIdx = {}; ps.forEach(p => { if (p.idx) regIdx[p.idx] = p; });
     const addForm = '<div class="card" style="margin-top:18px"><h3>Ajouter un enseignant</h3><label for="t-n">Nom complet (NOM Prénom)</label><input id="t-n" autocomplete="off" placeholder="Obiang Marie"><label for="t-m">Matière(s), séparées par une virgule</label><input id="t-m" autocomplete="off" placeholder="Mathématiques"><p class="mini" style="margin:8px 0 0">Classes tenues (clique pour choisir) :</p><div class="chips" id="t-c">' + CLS.map(c => '<button type="button" class="chip" data-a="pcls" data-v="' + c.id + '">' + c.n + '</button>').join("") + '</div><p><button class="btn dark" data-a="addstaff" style="margin-top:12px">Ajouter l’enseignant</button></p><p class="mini">À l’inscription, l’enseignant écrit son nom, le nombre de classes choisies ici et le code enseignant. Si tu ajoutes le même nom une seconde fois, ses classes sont remplacées.</p></div>';
     const ixl = ix.filter(r => r.display).sort((a, b) => a.display < b.display ? -1 : 1);
     const ixHtml = '<h3 style="margin-top:18px">Enseignants autorisés à s’inscrire (' + ixl.length + ')</h3><div class="card">' + (ixl.map(r => { const u = regIdx[r.id]; return '<div class="row"><span class="nm2">' + esc(r.display) + '<br><span class="mini">' + (r.classes || []).map(c => esc((clsById(c) || { n: c }).n)).join(", ") + ' · ' + (r.classes || []).length + ' classe(s)' + ((r.subs || []).length ? " · " + esc(r.subs.join(", ")) : "") + '</span></span><span class="r">' + (u ? '<span class="ok2">✓ inscrit</span>' : '<span class="mini">pas encore</span>') + ' <button class="lnk" data-a="delstaff" data-v="' + esc(r.id) + '">Retirer</button></span></div>'; }).join("") || todo("Liste vide : aucun enseignant ne pourra s’inscrire.")) + '</div>';
     const blk = p => '<button class="chip" data-a="blk" data-v="' + esc(p.id) + '" data-b="' + (p.blocked ? 0 : 1) + '">' + (p.blocked ? "Réactiver" : "Suspendre") + '</button>';
     L.innerHTML = addForm + ixHtml + '<h3 style="margin-top:18px">Enseignants inscrits</h3>' + (ps.map(p => '<div class="card" data-uid="' + esc(p.id) + '"><b>' + esc(p.prenom + " " + p.nom) + '</b> ' + (p.approved ? '<span class="ok2">✓ validé</span>' : '<span class="tag">en attente</span>') + (p.blocked ? ' <span class="tag">suspendu</span>' : "") + '<br><span class="mini">' + esc(p.email) + (p.matiere ? " · " + esc(p.matiere) : "") + '</span><p class="mini" style="margin:8px 0 0">Classes attribuées (clique pour choisir) :</p><div class="chips pc">' + CLS.map(c => '<button class="chip' + ((p.classes || []).indexOf(c.id) >= 0 ? " on" : "") + '" data-a="pcls" data-v="' + c.id + '">' + c.n + '</button>').join("") + '</div><button class="btn dark" data-a="saveprof" data-v="' + esc(p.id) + '">' + (p.approved ? "Enregistrer" : "Valider le compte") + '</button> <button class="chip" data-a="revprof" data-v="' + esc(p.id) + '">Retirer l’accès</button> ' + blk(p) + (p.idx ? ' <button class="chip" data-a="rstprof" data-v="' + esc(p.id) + '" data-i="' + esc(p.idx) + '">Réinitialiser l’accès</button>' : "") + '</div>').join("") || todo("Aucun enseignant inscrit pour l’instant.")) +
-      '<h3 style="margin-top:18px">Parents</h3>' + (pa.map(p => '<div class="card"><b>' + esc(p.prenom + " " + p.nom) + '</b> ' + (p.approved ? '<span class="ok2">✓ validé</span>' : '<span class="tag">en attente</span>') + (p.blocked ? ' <span class="tag">suspendu</span>' : "") + '<br><span class="mini">' + esc(p.email) + ' · parent</span><br><button class="btn dark" style="margin-top:8px" data-a="okpar" data-v="' + esc(p.id) + '">' + (p.approved ? "Valider" : "Valider ce parent") + '</button> <button class="chip" data-a="revpar" data-v="' + esc(p.id) + '">Retirer l’accès</button> ' + blk(p) + '</div>').join("") || todo("Aucun parent inscrit."));
+      '<h3 style="margin-top:18px">Parents</h3>' + (pa.map(p => '<div class="card"><b>' + esc(p.prenom + " " + p.nom) + '</b> ' + (p.approved ? '<span class="ok2">✓ validé</span>' : '<span class="tag">en attente</span>') + (p.blocked ? ' <span class="tag">suspendu</span>' : "") + '<br><span class="mini">' + esc(p.email) + ' · parent</span><br>' + ABS.kidsAdm(plk, p.id) + '<br><button class="btn dark" style="margin-top:8px" data-ab="okpl" data-v="' + esc(p.id) + '">' + (p.approved ? "Valider les enfants" : "Valider parent et enfants") + '</button> <button class="chip" data-a="revpar" data-v="' + esc(p.id) + '">Retirer l’accès</button> ' + blk(p) + '</div>').join("") || todo("Aucun parent inscrit."));
   } catch (e) { L.innerHTML = todo("Liste indisponible."); }
 }
 $("adm").addEventListener("change", async e => {
@@ -1811,7 +1817,7 @@ $("adm").addEventListener("click", async e => {
       toast("Enseignant ajouté : " + cl.length + " classe(s). Il indiquera " + cl.length + " à l’inscription."); adminList(); return;
     }
     if (a === "delstaff") { if (!confirm("Retirer cet enseignant de la liste ? Il ne pourra plus s’inscrire (s’il l’est déjà, son compte reste).")) return; await DB.del("staffidx/" + v); toast("Retiré."); adminList(); return; }
-    if (a === "addann") { if (!val("f-t")) { toast("Écris d’abord un titre."); return; } const d = { t: val("f-t"), x: val("f-x"), c: val("f-c"), createdAt: NOW(), likeCount: 0, commentCount: 0, by: (ME && ME.fn) || "Administration" }; if (val("f-u")) d.until = val("f-u"); if (ADMIMG) d.img = ADMIMG; Object.assign(d, NWS.get("adm")); await DB.add("announcements", d); toast("Publié."); renderAdmin(); return; }
+    if (a === "addann") { if (!val("f-t")) { toast("Écris d’abord un titre."); return; } const d = { t: val("f-t"), x: val("f-x"), c: val("f-c"), createdAt: NOW(), likeCount: 0, commentCount: 0, by: (ME && ME.fn) || "Administration" }; if (val("f-u")) d.until = val("f-u"); if ($("f-par") && !$("f-par").checked) d.par = false; if (ADMIMG) d.img = ADMIMG; Object.assign(d, NWS.get("adm")); await DB.add("announcements", d); toast("Publié."); renderAdmin(); return; }
     if (a === "pin") { await DB.set("announcements/" + v, { pinned: b.getAttribute("data-b") === "1" }, true); toast("Mis à jour."); return; }
     if (a === "addpoll") { const o = val("f-x").split("\n").map(x => x.trim()).filter(Boolean).slice(0, 6); if (!val("f-t") || o.length < 2) { toast("Une question et au moins 2 choix."); return; } const d = { q: val("f-t"), opts: o, open: true, createdAt: NOW() }; o.forEach((_, i) => { d["c" + i] = 0; }); await DB.add("polls", d); toast("Sondage publié."); renderAdmin(); return; }
     if (a === "pollopen") { await DB.set("polls/" + v, { open: b.getAttribute("data-b") === "1" }, true); return; }
@@ -2116,10 +2122,12 @@ let PIS = [];
 function adminExtraTab(t) {
   if (ATAB === "ho") { t.innerHTML = '<div class="card"><label for="f-n">Nom de l’élève</label><input id="f-n"><label for="f-c">Classe</label><select id="f-c">' + classOptions() + '</select><label for="f-x">Motif (ex. Major de la classe, Félicitations…)</label><input id="f-x"><p><button class="btn dark" data-a="addhon" style="margin-top:12px">Ajouter au tableau d’honneur</button></p></div>'; return true; }
   if (ATAB === "pi") { t.innerHTML = ""; return true; }
+  if (ATAB === "ab") { t.innerHTML = '<p class="todo">Les enseignants envoient leurs listes par séance. Vérifie, corrige si besoin, puis publie : élèves, parents et enseignants concernés les voient alors.</p>'; return true; }
   return false;
 }
 async function adminExtraList(L) {
   if (ATAB === "ho") { L.innerHTML = '<h3 style="margin-top:18px">Tableau d’honneur</h3>' + (HON.map(h => '<div class="card"><b>' + esc(h.name) + '</b> <span class="tag">' + esc(h.cls) + '</span><br>' + esc(h.motif) + '<br><button class="chip" data-a="delhon" data-v="' + esc(h.id) + '">Retirer</button></div>').join("") || todo("Vide.")); return true; }
+  if (ATAB === "ab") { await ABS.adminView(L); return true; }
   if (ATAB === "pi") {
     L.innerHTML = todo("Chargement…");
     try {
@@ -4614,6 +4622,7 @@ window.LTAUD=function(host,stream,old){
     try{await enroll(p.id,p.pw);info("Activé. La prochaine fois, laisse le mot de passe vide.")}catch(x){info("Activation annulée ou impossible sur cet appareil.")}}
   var oa=window.afterAuth;if(typeof oa==="function"){window.afterAuth=function(){var r=oa.apply(this,arguments);if(typeof USER!=="undefined"&&USER)setTimeout(function(){offer(false)},600);return r}}
   window.__bioGate=function(){setTimeout(function(){offer(true)},600)};
+  window.__bioEnroll=function(id,pw){return enroll(id,pw)};window.__bioHas=has;
 })();
 </script>
 
@@ -5685,5 +5694,515 @@ html body #soc#soc .nwh>img{content:url(data:image/png;base64,iVBORw0KGgoAAAANSU
  border-radius:22px!important;background:none!important;object-fit:contain!important;box-shadow:none!important;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))!important}
 html body #soc#soc .nwht{margin-left:4px}
 </style>
+<style id="abs33css">
+.as3{margin:14px 0;color:#111}
+.as3t{background:#0b2a6b;color:#fff;border-radius:12px;padding:10px 12px;font:800 clamp(16px,4.6vw,22px)/1.2 sans-serif;text-align:center}
+.as3k{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.as3k>div{border-radius:10px;padding:8px 10px;font:700 13px/1.3 sans-serif;border:1px solid #b8d0f0;background:#f4f8ff;color:#0b2a6b}
+.as3k .g{background:#1a9a2f;color:#fff;border-color:#1a9a2f}.as3k .r{background:#d91f1f;color:#fff;border-color:#d91f1f}
+.as3k b{display:block;font-size:16px}
+.as3w{overflow-x:auto;border:2px solid #0b2a6b;border-radius:10px;background:#fff}
+.as3 table{border-collapse:collapse;min-width:680px;width:100%;font:600 13px sans-serif}
+.as3 th{background:#0b2a6b;color:#fff;padding:7px 5px;text-align:center;font-size:12px;border-left:1px solid #3a5aa0}
+.as3 td{padding:4px;border-top:1px solid #d7dfef;text-align:center;white-space:nowrap;color:#111}
+.as3 td.n,.as3 th.n{text-align:left;position:sticky;left:0;background:#fff;z-index:1}.as3 th.n{background:#0b2a6b}
+.as3 .p,.as3 .a,.as3 .x{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:700;color:#fff}
+.as3 .p{background:#1a9a2f}.as3 .a{background:#d91f1f}.as3 .x{background:#9aa5b8}
+.as3b{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+.as3l{margin:8px 0;font:600 12px sans-serif;color:#333}.as3f{margin:8px 0;font:600 12px sans-serif;color:#222;text-align:right}.as3f img{max-width:160px;margin-top:6px}
+</style>
+<script id="abs32">
+/* ===== v32 : absences par séance (prof saisit → administration publie) + parents liés à leurs enfants ===== */
+(function () {
+"use strict";
+var Q = function (s, r) { return (r || document).querySelector(s); };
+var DOW = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"], TYP = { a: "Absent(e)", r: "En retard" };
+var RC = {}, AP = { date: null, h: null, marks: {}, sess: {}, pub: [], ro: [], t: null, cid: null }, PS = { tab: "abs", ck: null }, PL = null, TOK = 0, AD = { pend: [], pub: [] };
+
+function dn(d) { return DOW[new Date(d + "T12:00:00Z").getUTCDay()]; }
+function dl(d) { return fmt(d, { weekday: "long", day: "numeric", month: "long" }); }
+function minus(n) { var p = todayISO().split("-"); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]) - n * 864e5).toISOString().slice(0, 10); }
+function sid(c, d, h) { return c + "_" + d + "_" + String(h).replace(/\D/g, ""); }
+function pause(m) { return /pause|d[eé]jeuner|r[eé]cr[eé]/i.test(m || ""); }
+function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+function byDate(a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (a.h < b.h ? 1 : -1); }
+async function roster(cid) {
+  if (RC[cid]) return RC[cid];
+  var r = await DB.list("roster", { where: ["classId", "==", cid] });
+  r.sort(function (a, b) { return a.display < b.display ? -1 : 1; });
+  return (RC[cid] = r);
+}
+
+/* ---------- affichage d'une liste publiée (élèves, enseignants) ---------- */
+function listHTML(l, mine, tag) {
+  var days = {};
+  l.forEach(function (x) { var d = (days[x.date] = days[x.date] || {}), k = x.h + "|" + x.subject; (d[k] = d[k] || []).push(x); });
+  var ds = Object.keys(days).sort().reverse().slice(0, 30);
+  if (!ds.length) return todo("Aucune absence publiée pour le moment. 👏");
+  return ds.map(function (d) {
+    return '<h3 style="margin-top:16px">' + esc(dl(d)) + '</h3><div class="card">' + Object.keys(days[d]).sort().map(function (k) {
+      var a = days[d][k], i = k.indexOf("|");
+      return '<div class="row"><b>' + esc(k.slice(0, i)) + ' · ' + esc(k.slice(i + 1)) + '</b><span class="r" style="text-align:right">' + a.map(function (x) {
+        var me = mine && mine(x);
+        return '<span style="display:block' + (me ? ";font-weight:800" : "") + '">' + esc(x.display) + ' — ' + (TYP[x.type] || "") + (me && tag ? ' <small>(' + tag + ')</small>' : "") + '</span>';
+      }).join("") + '</span></div>';
+    }).join("") + '</div>';
+  }).join("");
+}
+
+/* ---------- élève : absences de sa classe ---------- */
+window.tabAbs = async function () {
+  var box = $("stab"); box.innerHTML = todo("Chargement…");
+  try {
+    try { await roster(ME.classId); } catch (e) { }
+    var l = await DB.list("abspub/" + ME.classId + "/i", { where: ["date", ">=", minus(30)] });
+    if (STAB !== "ab") return;
+    var mine = l.filter(function (x) { return x.key === ME.key; }), na = mine.filter(function (x) { return x.type === "a"; }).length;
+    box.innerHTML = '<div class="stats"><div class="stat"><b>' + na + '</b>absence(s) (30 j)</div><div class="stat"><b>' + (mine.length - na) + '</b>retard(s) (30 j)</div></div>' +
+      '<p class="todo">Absences de ta classe, publiées par l’administration (30 derniers jours).</p>' + listHTML(l, function (x) { return x.key === ME.key; }, "toi");
+  } catch (e) { box.innerHTML = todo("Impossible de charger les absences."); }
+};
+
+/* ---------- enseignant : appel par séance ---------- */
+function slotsFor(t, date) {
+  var rows = ((t.days || {})[dn(date)] || []).filter(function (r) { return !pause(r.m); });
+  if (ME.role !== "admin") {
+    var me = norm(ME.nom || ""), subs = String(ME.matiere || "").split(",").map(norm).filter(Boolean);
+    rows = rows.filter(function (r) { var pr = norm(teacherOf(t, r.m)); return (pr && me && pr.indexOf(me) >= 0) || (!pr && subs.indexOf(norm(r.m)) >= 0); });
+  }
+  return rows.slice().sort(function (a, b) { return a.h < b.h ? -1 : 1; });
+}
+window.tabAppel = async function () {
+  var c = clsById(SCLASS), box = $("stab"); if (!c) return;
+  box.innerHTML = todo("Chargement…");
+  if (AP.cid !== c.id) { AP.cid = c.id; AP.h = null; AP.marks = {}; }
+  AP.date = AP.date || todayISO();
+  try {
+    var r = await Promise.all([loadTT(c.id), roster(c.id), DB.list("abspub/" + c.id + "/i", { where: ["date", ">=", minus(14)] })]);
+    if (STAB !== "ap" || SCLASS !== c.id) return;
+    if (r[0].err) { box.innerHTML = todo("Impossible de charger l’emploi du temps."); return; }
+    AP.t = r[0]; AP.ro = r[1]; AP.pub = r[2];
+    await apSess(); apRender();
+  } catch (e) { console.warn(e); box.innerHTML = todo("Impossible de charger l’appel."); }
+};
+async function apSess() {
+  AP.sess = {};
+  var s = slotsFor(AP.t, AP.date);
+  await Promise.all(s.map(async function (r) { try { var d = await DB.get("abssess/" + sid(AP.cid, AP.date, r.h)); if (d) AP.sess[r.h] = d; } catch (e) { } }));
+}
+function apRender() {
+  var box = $("stab"), c = clsById(AP.cid); if (!box || !c || STAB !== "ap") return;
+  var slots = slotsFor(AP.t, AP.date), cur = slots.find(function (r) { return r.h === AP.h; }), se = cur && AP.sess[cur.h];
+  var h = '<p class="todo">Fais l’appel séance par séance. Ta saisie est envoyée à l’administration, qui la valide puis la publie.</p>' +
+    '<div class="card"><label for="ap32-d">Date</label><input id="ap32-d" type="date" max="' + todayISO() + '" value="' + AP.date + '"><p class="mini" style="margin:8px 0 6px">' + esc(dn(AP.date)) + ' · choisis la séance :</p><div class="chips">' +
+    (slots.map(function (r) { var s = AP.sess[r.h], st = s ? (s.status === "published" ? " ✅ publié" : " ⏳ en attente") : ""; return '<button class="chip' + (r.h === AP.h ? " on" : "") + '" data-ab="slot" data-v="' + esc(r.h) + '">' + esc(r.h) + ' · ' + esc(r.m) + st + '</button>'; }).join("") || "") + '</div>' +
+    (slots.length ? "" : todo("Aucune séance à toi ce jour-là dans cette classe (vérifie l’emploi du temps).")) + '</div>';
+  if (cur) {
+    if (se && se.status === "published") {
+      h += '<div class="card"><b>' + esc(cur.h + " · " + cur.m) + '</b> — liste publiée par l’administration.' + ((se.absent || []).length ? (se.absent || []).map(function (a) { return '<div class="row"><span class="nm2">' + esc(a.display) + '</span><span class="r">' + TYP[a.type] + '</span></div>'; }).join("") : todo("Aucun absent.")) + '</div>';
+    } else {
+      h += '<div class="card"><b>' + esc(cur.h + " · " + cur.m) + '</b> — ' + esc(c.n) + (se ? ' <span class="tag">envoyé, en attente de publication</span>' : "") +
+        (AP.ro.map(function (r) {
+          var s = AP.marks[r.key] || "p";
+          return '<div class="row"><span class="nm2">' + esc(r.display) + '</span><span class="r"><button class="chip' + (s === "p" ? " on" : "") + '" data-ab="mk" data-v="' + esc(r.key) + '|p">Présent</button><button class="chip' + (s === "a" ? " on" : "") + '" data-ab="mk" data-v="' + esc(r.key) + '|a">Absent</button></span></div>';
+        }).join("") || todo("La liste de cette classe est vide (l’administration doit l’ajouter).")) +
+        '<p><button class="btn dark" data-ab="send" style="margin-top:12px">📤 ' + (se ? "Renvoyer" : "Envoyer") + ' à l’administration (' + Object.keys(AP.marks).length + ' absent)</button></p></div>';
+    }
+  }
+  h += '<h3 style="margin-top:18px">Absences publiées · ' + esc(c.n) + ' (14 derniers jours)</h3>' + listHTML(AP.pub, function (x) { return x.byUid === USER.uid; }, "saisi par toi");
+  box.innerHTML = h;
+}
+async function apSend() {
+  var c = clsById(AP.cid), cur = slotsFor(AP.t, AP.date).find(function (r) { return r.h === AP.h; }); if (!c || !cur) return;
+  var id = sid(c.id, AP.date, cur.h), old = AP.sess[cur.h];
+  if (old && old.status === "published") { toast("Cette liste est déjà publiée."); return; }
+  var absent = AP.ro.filter(function (r) { return AP.marks[r.key]; }).map(function (r) { return { key: r.key, display: r.display, type: AP.marks[r.key] }; });
+  /* v35 : refuser tout élève absent de la classe ou pas encore inscrit sur le site */
+  var bad = [];
+  for (var vi = 0; vi < absent.length; vi++) {
+    var va = absent[vi], vok = false;
+    try { var vr = await DB.get("roster/" + va.key); if (vr && vr.classId === c.id) vok = !!(await DB.get("recq/" + va.key + (vr.sfx || ""))); }
+    catch (e) { toast("Vérification impossible. Réessaie."); return; }
+    if (!vok) bad.push(va.display);
+  }
+  if (bad.length) { toast("Envoi bloqué : " + bad.join(", ") + (bad.length > 1 ? " ne sont pas inscrits" : " n’est pas inscrit(e)") + " sur le site dans la classe " + c.n + "."); return; }
+  var d = { classId: c.id, className: c.n, date: AP.date, h: cur.h, subject: cur.m, byUid: USER.uid, by: who().name, absent: absent, status: "pending", createdAt: old ? old.createdAt : NOW(), updatedAt: NOW() };
+  try { await DB.set("abssess/" + id, d); AP.sess[cur.h] = Object.assign({ id: id }, d); toast("Envoyé à l’administration ✅"); apRender(); }
+  catch (e) { toast("Envoi impossible. Réessaie."); }
+}
+
+/* ---------- parents : vérification des enfants, lien ---------- */
+function kidRows(p, n, v) {
+  var h = "";
+  for (var i = 0; i < n; i++) {
+    var x = (v && v[i]) || {};
+    h += '<div class="card" style="margin:10px 0"><b>Enfant ' + (i + 1) + '</b><label for="' + p + '-n' + i + '">Nom de l’enfant</label><input id="' + p + '-n' + i + '" autocomplete="off" value="' + esc(x.nom || "") + '"><label for="' + p + '-p' + i + '">Prénom de l’enfant</label><input id="' + p + '-p' + i + '" autocomplete="off" value="' + esc(x.prenom || "") + '"><label for="' + p + '-c' + i + '">Classe</label><select id="' + p + '-c' + i + '">' + classOptions(x.classId) + '</select></div>';
+  }
+  return h;
+}
+function kidsBlock(p, n) {
+  var o = ""; for (var i = 1; i <= 6; i++) o += '<option value="' + i + '"' + (i === n ? " selected" : "") + '>' + i + '</option>';
+  return '<label for="' + p + '-k">Combien d’enfants as-tu dans ce lycée ?</label><select id="' + p + '-k">' + o + '</select><p class="mini" style="margin:6px 0 0">Tes enfants doivent déjà être inscrits sur le site (compte élève créé), sinon l’inscription échoue.</p><div id="' + p + '-kids">' + kidRows(p, n) + '</div>';
+}
+function kidVals(p) { var a = [], i = 0; while (Q("#" + p + "-n" + i)) { a.push({ nom: Q("#" + p + "-n" + i).value, prenom: Q("#" + p + "-p" + i).value, classId: Q("#" + p + "-c" + i).value }); i++; } return a; }
+function kidsFilled(p, n) {
+  for (var i = 0; i < n; i++) { var a = Q("#" + p + "-n" + i), b = Q("#" + p + "-p" + i); if (!a || !b || !words(a.value).length || !words(b.value).length) return "Enfant " + (i + 1) + " : écris son nom et son prénom."; }
+  return "";
+}
+async function checkKids(p, n) {
+  var out = [], seen = {};
+  for (var i = 0; i < n; i++) {
+    var nom = Q("#" + p + "-n" + i).value.trim(), pre = Q("#" + p + "-p" + i).value.trim(), cid = Q("#" + p + "-c" + i).value, c = clsById(cid);
+    if (!words(nom).length || !words(pre).length) throw new Error("Enfant " + (i + 1) + " : écris son nom et son prénom.");
+    var key = rosterKey(cid, nom, pre), r;
+    try { r = await DB.get("roster/" + key); } catch (e) { throw new Error("Connexion impossible. Réessaie."); }
+    if (!r) throw new Error("ÉCHEC : « " + nom + " " + pre + " » ne figure pas dans la liste de la classe " + c.n + ". Vérifie l’orthographe et la classe.");
+    if (seen[key]) throw new Error("L’enfant « " + nom + " " + pre + " » est indiqué deux fois.");
+    seen[key] = 1;
+    var reg = false, id0 = key + (r.sfx || "");
+    try { reg = !!(await DB.get("recq/" + id0)); } catch (e) { }
+    if (!reg) { try { reg = (await DB.list("users", { where: ["key", "==", key] })).some(function (u) { return u.role === "eleve"; }); } catch (e) { } }
+    if (!reg) throw new Error("ÉCHEC : « " + r.display + " » n’est pas encore inscrit(e) sur le site. Son compte élève doit d’abord être créé. Connexion impossible pour le moment.");
+    out.push({ key: key, display: r.display, nom: nom, prenom: pre, classId: cid, className: c.n });
+  }
+  return out;
+}
+function linkDoc(kids, ok) { return { children: kids, childKeys: kids.map(function (k) { return k.key; }), classIds: uniq(kids.map(function (k) { return k.classId; })), ok: !!ok, createdAt: NOW() }; }
+
+var _dp = window.doParent;
+window.doParent = async function (kind, f) {
+  if (kind !== "reg") return _dp(kind, f);
+  var m = "pa-m", btn = f.querySelector("button[type=submit]"), nom = $("pr-n").value.trim(), prenom = $("pr-p").value.trim(), n = parseInt($("pk-k").value, 10) || 1;
+  if (!words(nom).length || !words(prenom).length) { say(m, "Écris ton nom et ton prénom.", false); return; }
+  var bad = kidsFilled("pk", n); if (bad) { say(m, bad, false); return; }
+  btn.disabled = true; say(m, "Ouverture de Google…", true); REG = true;
+  try {
+    var g = await AUTH.googleIn(); if (!g.email) throw { code: "noemail" };
+    var p = await DB.get("users/" + g.uid);
+    if (p && p.role !== "parent") { await AUTH.signOut(); throw { code: "other" }; }
+    if (!p) {
+      say(m, "Vérification de tes enfants…", true);
+      var kids;
+      try { kids = await checkKids("pk", n); } catch (e) { try { await AUTH.signOut(); } catch (x) { } throw { code: "kid", msg: e.message }; }
+      try { await DB.set("parentlinks/" + g.uid, linkDoc(kids, false)); } catch (e) { try { await AUTH.signOut(); } catch (x) { } throw { code: "refused" }; }
+      p = { role: "parent", nom: nom, prenom: prenom, email: g.email.toLowerCase(), approved: false, createdAt: NOW() };
+      try { await DB.set("users/" + g.uid, p); } catch (e) { try { await AUTH.signOut(); } catch (x) { } throw { code: "refused" }; }
+    }
+    await new Promise(function (r) { setTimeout(r, 300); });
+    REG = false; PL = null; USER = { uid: g.uid, email: g.email }; ME = p; afterAuth();
+    toast(p.approved ? "Bienvenue !" : "Inscription envoyée : en attente de validation par l’administration.");
+  } catch (e) {
+    REG = false; btn.disabled = false;
+    say(m, ({ kid: e.msg, noacc: "Aucun compte parent avec ce compte Google. Utilise « Inscription ».", other: "Ce compte Google n’est pas un compte parent.", refused: "ÉCHEC : inscription refusée par le serveur.", noemail: "Ce compte Google n’a pas d’adresse e-mail." })[e.code] || (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request" ? "Fenêtre fermée. Réessaie." : e.code === "auth/popup-blocked" ? "Autorise les fenêtres pop-up pour ce site puis réessaie." : frErr(e)), false);
+  }
+};
+
+/* ---------- espace parent ---------- */
+async function myLinks() {
+  if (PL && PL.uid === USER.uid) return PL.v;
+  var d = await DB.get("parentlinks/" + USER.uid);
+  PL = { uid: USER.uid, v: d || { children: [], ok: false, none: true } };
+  return PL.v;
+}
+function parentHead(out) {
+  return '<div class="card who"><div><b>' + esc(ME.prenom + " " + ME.nom) + '</b> ' + badge("parent") + '<br><span class="todo">Compte parent</span></div>' + out + '</div>';
+}
+function declForm(vals, n) {
+  n = n || (vals && vals.length) || 1;
+  return '<div class="card"><h3>Mes enfants</h3><p class="todo">Indique tes enfants inscrits dans ce lycée. Ils doivent déjà avoir créé leur compte élève. L’administration validera ensuite le lien.</p>' + kidsBlock("pd", n).replace(/<div id="pd-kids">[\s\S]*<\/div>$/, '<div id="pd-kids">' + kidRows("pd", n, vals) + '</div>') + '<p><button class="btn dark" data-pa="savekids" style="margin-top:12px">Enregistrer mes enfants</button></p><p class="msg" id="pd-m" role="alert"></p></div>';
+}
+window.ABS_parentSpace = async function (el, out) {
+  var tk = ++TOK;
+  el.innerHTML = parentHead(out) + '<div id="pa-body">' + todo("Chargement…") + '</div>';
+  var body = function () { return tk === TOK && PAGE === "espace" && ME && ME.role === "parent" ? $("pa-body") : null; };
+  try {
+    var L = await myLinks(), b = body(); if (!b) return;
+    var kids = L.children || [];
+    if (!kids.length || PS.edit) { b.innerHTML = declForm(PS.edit ? kids : null, PS.edit ? kids.length : 1) + '<p><a class="btn dark" href="#annonces" style="display:inline-block;text-decoration:none">📢 Voir les annonces</a></p>'; return; }
+    if (!L.ok) { b.innerHTML = '<div class="card"><b>⏳ Liens en attente de validation</b><p class="todo">L’administration doit valider tes enfants avant que tu puisses voir leurs absences et leur emploi du temps :</p>' + kids.map(function (k) { return '<div class="row"><b>' + esc(k.display) + '</b><span class="r">' + esc(k.className) + '</span></div>'; }).join("") + '<p><button class="chip" data-pa="edit">Modifier la liste</button></p></div><p><a class="btn dark" href="#annonces" style="display:inline-block;text-decoration:none">📢 Voir les annonces</a></p>'; return; }
+    if (!PS.ck || !kids.some(function (k) { return k.key === PS.ck; })) PS.ck = kids[0].key;
+    var kid = kids.find(function (k) { return k.key === PS.ck; });
+    b.innerHTML = '<div class="chips">' + kids.map(function (k) { return '<button class="chip' + (k.key === PS.ck ? " on" : "") + '" data-pa="kid" data-v="' + esc(k.key) + '">👦 ' + esc(k.display) + ' · ' + esc(k.className) + '</button>'; }).join("") + '</div>' +
+      '<div class="chips"><button class="chip' + (PS.tab === "abs" ? " on" : "") + '" data-pa="tab" data-v="abs">🕒 Absences</button><button class="chip' + (PS.tab === "tt" ? " on" : "") + '" data-pa="tab" data-v="tt">📅 Emploi du temps</button><a class="chip" href="#annonces" style="text-decoration:none">📢 Annonces</a></div><div id="pa-c">' + todo("Chargement…") + '</div>';
+    var c = $("pa-c");
+    if (PS.tab === "tt") {
+      var t = await loadTT(kid.classId); if (!(c = body() && $("pa-c"))) return;
+      var has = t && !t.err && t.days && Object.keys(t.days).some(function (d) { return (t.days[d] || []).length; });
+      c.innerHTML = t.err ? todo("Impossible de charger l’emploi du temps.") : (has && t.published === true) ? '<div class="ttcard"><h3 class="tth">📅 Emploi du temps – <span>' + esc(kid.className) + '</span></h3>' + ttTable(t) + '</div>' : todo("L’emploi du temps de la classe " + esc(kid.className) + " n’est pas encore publié.");
+    } else {
+      var l = await DB.list("abspub/" + kid.classId + "/i", { where: ["key", "==", kid.key] }); if (!(c = body() && $("pa-c"))) return;
+      var na = l.filter(function (x) { return x.type === "a"; }).length;
+      c.innerHTML = '<div class="stats"><div class="stat"><b>' + na + '</b>absence(s)</div></div>' + listHTML(l, null, null, kid.key);
+    }
+  } catch (e) { console.warn(e); var z = body(); if (z) z.innerHTML = todo("Impossible de charger tes informations pour le moment."); }
+};
+async function saveKids() {
+  var n = parseInt(Q("#pd-k").value, 10) || 1, bad = kidsFilled("pd", n);
+  if (bad) { say("pd-m", bad, false); return; }
+  say("pd-m", "Vérification…", true);
+  try {
+    var kids = await checkKids("pd", n);
+    await DB.set("parentlinks/" + USER.uid, linkDoc(kids, false));
+    PL = null; PS.edit = false; toast("Enfants enregistrés. En attente de validation."); renderSpace();
+  } catch (e) { say("pd-m", e.message || "Enregistrement impossible.", false); }
+}
+
+/* ---------- administration : validation et publication ---------- */
+async function adminView(L) {
+  L.innerHTML = todo("Chargement…");
+  try {
+    var r = await Promise.all([DB.list("abssess", { where: ["status", "==", "pending"] }), DB.list("abssess", { where: ["date", ">=", minus(14)] })]);
+    if (typeof ATAB !== "undefined" && ATAB !== "ab") return;
+    AD.pend = r[0].sort(byDate); AD.pub = r[1].filter(function (x) { return x.status === "published"; }).sort(byDate);
+    await Promise.all(uniq(AD.pend.map(function (s) { return s.classId; })).map(function (c) { return roster(c).catch(function () { }); }));
+    adminPaint(L);
+  } catch (e) { console.warn(e); L.innerHTML = todo("Absences indisponibles (vérifie les règles Firestore)."); }
+}
+function adminPaint(L) {
+  L = L || $("adm-list"); if (!L) return;
+  var card = function (s, pend) {
+    var ab = s.absent || [];
+    return '<div class="card" data-sid="' + esc(s.id) + '"><b>' + esc(s.className) + '</b> <span class="tag">' + esc(dl(s.date)) + ' · ' + esc(s.h) + ' · ' + esc(s.subject) + '</span><br><span class="mini">Saisi par ' + esc(s.by || "?") + '</span>' +
+      (ab.map(function (a) { return '<div class="row"><span class="nm2">' + esc(a.display) + '</span><span class="r">' + (pend ? '<button class="chip on" data-ab="aty" data-v="' + esc(s.id) + '|' + esc(a.key) + '">' + TYP[a.type] + '</button><button class="chip" data-ab="arm" data-v="' + esc(s.id) + '|' + esc(a.key) + '" aria-label="Retirer">✕</button>' : TYP[a.type]) + '</span></div>'; }).join("") || '<p class="mini">Aucun absent.</p>') +
+      (pend ? addSel(s) + '<p style="margin-top:10px"><button class="btn dark" data-ab="apub" data-v="' + esc(s.id) + '">✅ Valider et publier</button> <button class="chip" data-ab="adel" data-v="' + esc(s.id) + '">Supprimer</button></p>' : '<p style="margin-top:10px"><button class="chip" data-ab="aunp" data-v="' + esc(s.id) + '">Retirer la publication</button> <button class="chip" data-ab="adel" data-v="' + esc(s.id) + '">Supprimer</button></p>') + '</div>';
+  };
+  L.innerHTML = '<h3 style="margin-top:18px">En attente de validation (' + AD.pend.length + ')</h3>' + (AD.pend.length > 1 ? '<p><button class="btn dark" data-ab="apuball">✅ Tout publier (' + AD.pend.length + ')</button></p>' : "") + (AD.pend.map(function (s) { return card(s, true); }).join("") || todo("Aucune liste en attente.")) +
+    '<h3 style="margin-top:22px">Publiées (14 derniers jours)</h3>' + (AD.pub.map(function (s) { return card(s, false); }).join("") || todo("Aucune."));
+}
+function addSel(s) {
+  var ro = RC[s.classId] || [], have = {}; (s.absent || []).forEach(function (a) { have[a.key] = 1; });
+  var o = ro.filter(function (r) { return !have[r.key]; }).map(function (r) { return '<option value="' + esc(r.key) + '">' + esc(r.display) + '</option>'; }).join("");
+  return o ? '<p style="margin:8px 0 0"><select id="ad-s-' + esc(s.id) + '"><option value="">+ Ajouter un élève…</option>' + o + '</select> <button class="chip" data-ab="aadd" data-v="' + esc(s.id) + '">Ajouter</button></p>' : "";
+}
+function find(id) { return AD.pend.find(function (x) { return x.id === id; }) || AD.pub.find(function (x) { return x.id === id; }); }
+async function publish(s) {
+  var base = { classId: s.classId, className: s.className, date: s.date, h: s.h, subject: s.subject, by: s.by || "", byUid: s.byUid || "", sessId: s.id, pubAt: NOW() };
+  for (var i = 0; i < (s.absent || []).length; i++) { var a = s.absent[i]; await DB.set("abspub/" + s.classId + "/i/" + s.id + "_" + a.key, Object.assign({ key: a.key, display: a.display, type: a.type }, base)); }
+  await DB.set("abssess/" + s.id, { status: "published", pubAt: NOW(), pubBy: who().name, absent: s.absent || [] }, true);
+  s.status = "published";
+}
+async function unpublish(s) {
+  for (var i = 0; i < (s.absent || []).length; i++) { try { await DB.del("abspub/" + s.classId + "/i/" + s.id + "_" + s.absent[i].key); } catch (e) { } }
+  await DB.set("abssess/" + s.id, { status: "pending" }, true); s.status = "pending";
+}
+async function adminAct(a, v, b) {
+  var p = String(v || "").split("|"), s = find(p[0]);
+  try {
+    if (a === "apuball") { b.disabled = true; var all = AD.pend.slice(); for (var i = 0; i < all.length; i++) await publish(all[i]); toast(all.length + " liste(s) publiée(s) ✅"); return adminView($("adm-list")); }
+    if (!s) return;
+    if (a === "aty") { var x = s.absent.find(function (k) { return k.key === p[1]; }); if (x) { x.type = x.type === "a" ? "r" : "a"; await DB.set("abssess/" + s.id, { absent: s.absent }, true); } }
+    else if (a === "arm") { s.absent = s.absent.filter(function (k) { return k.key !== p[1]; }); await DB.set("abssess/" + s.id, { absent: s.absent }, true); }
+    else if (a === "aadd") { var sel = $("ad-s-" + s.id), key = sel && sel.value; if (!key) return; var r = (RC[s.classId] || []).find(function (k) { return k.key === key; }); if (!r) return; s.absent = (s.absent || []).concat([{ key: r.key, display: r.display, type: "a" }]); await DB.set("abssess/" + s.id, { absent: s.absent }, true); }
+    else if (a === "apub") { b.disabled = true; await publish(s); AD.pend = AD.pend.filter(function (k) { return k !== s; }); AD.pub.unshift(s); toast("Publié : visible par les élèves, parents et enseignants concernés ✅"); }
+    else if (a === "aunp") { if (!confirm("Retirer cette publication ? Les élèves et parents ne la verront plus.")) return; await unpublish(s); AD.pub = AD.pub.filter(function (k) { return k !== s; }); AD.pend.unshift(s); toast("Publication retirée."); }
+    else if (a === "adel") { if (!confirm("Supprimer cette saisie ?")) return; if (s.status === "published") await unpublish(s); await DB.del("abssess/" + s.id); AD.pend = AD.pend.filter(function (k) { return k !== s; }); AD.pub = AD.pub.filter(function (k) { return k !== s; }); toast("Supprimé."); }
+    adminPaint();
+  } catch (e) { console.warn(e); toast("Action refusée par le serveur."); if (b) b.disabled = false; }
+}
+function kidsAdm(pl, uid) {
+  var d = (pl || []).find(function (x) { return x.id === uid; });
+  if (!d || !(d.children || []).length) return '<span class="mini">⚠️ Aucun enfant déclaré.</span>';
+  return '<span class="mini">Enfants : ' + d.children.map(function (k) { return esc(k.display) + ' (' + esc(k.className) + ')'; }).join(", ") + ' · ' + (d.ok ? '<b class="ok2">✓ liens validés</b>' : '<b>liens à valider</b>') + '</span>';
+}
+async function okParent(uid, b) {
+  try {
+    var d = await DB.get("parentlinks/" + uid);
+    await DB.set("users/" + uid, { approved: true }, true);
+    if (d && (d.children || []).length) { await DB.set("parentlinks/" + uid, { ok: true, okAt: NOW() }, true); toast("Parent et enfants validés."); }
+    else toast("Parent validé, mais aucun enfant n’est déclaré : il ne verra rien tant qu’il ne les indique pas.");
+    adminList();
+  } catch (e) { toast("Validation refusée par le serveur."); if (b) b.disabled = false; }
+}
+
+/* ---------- événements ---------- */
+document.addEventListener("click", function (e) {
+  var b = e.target.closest && e.target.closest("[data-ab],[data-pa]"); if (!b) return;
+  var ab = b.getAttribute("data-ab"), pa = b.getAttribute("data-pa"), v = b.getAttribute("data-v");
+  if (pa) {
+    if (pa === "tab") { PS.tab = v; renderSpace(); }
+    else if (pa === "kid") { PS.ck = v; renderSpace(); }
+    else if (pa === "edit") { PS.edit = true; renderSpace(); }
+    else if (pa === "savekids") saveKids();
+    return;
+  }
+  if (ab === "slot") { AP.h = v; var cur = AP.sess[v]; AP.marks = {}; if (cur && cur.absent) cur.absent.forEach(function (a) { AP.marks[a.key] = a.type; }); apRender(); }
+  else if (ab === "mk") { var q = v.split("|"); if (q[1] === "p") delete AP.marks[q[0]]; else AP.marks[q[0]] = q[1]; apRender(); }
+  else if (ab === "send") apSend();
+  else if (ab === "okpl") { if (isAdmin()) { b.disabled = true; okParent(v, b); } }
+  else if (isAdmin()) adminAct(ab, v, b);
+});
+document.addEventListener("change", function (e) {
+  var t = e.target; if (!t || !t.id) return;
+  if (t.id === "ap32-d") { AP.date = t.value || todayISO(); AP.h = null; AP.marks = {}; tabAppel(); }
+  else if (t.id === "pk-k" || t.id === "pd-k") { var p = t.id.slice(0, 2), v = kidVals(p), z = $(p + "-kids"); if (z) z.innerHTML = kidRows(p, parseInt(t.value, 10) || 1, v); }
+});
+
+/* ===== v33 : feuille d'absence par classe et par jour (comme la maquette) ===== */
+var STAMP = ""; /* image signature + cachet (data:image/...) à renseigner */
+var IC = [[/math/i, "🧮"], [/svt|vie et de la terre|biolog/i, "🌿"], [/phys|chim/i, "⚛️"], [/fran[cç]ais|lettre/i, "📖"], [/angl|langue/i, "🌍"], [/hist|g[eé]o/i, "🌎"], [/sport|eps/i, "🏃"], [/info/i, "💻"]];
+function sIcon(m) { for (var i = 0; i < IC.length; i++) if (IC[i][0].test(m)) return IC[i][1]; return "📘"; }
+function pc(n, t) { return t ? (n * 100 / t).toFixed(1).replace(".", ",") + " %" : "0 %"; }
+function dd(d) { return d.split("-").reverse().join("/"); }
+function anyA(r, subs) { return subs.some(function (s) { return r.c[s] === "a"; }); }
+function sheetHTML(o) {
+  var two = o.rows.length && o.rows.every(function (r) { return r.nom && r.pre; }), eff = o.eff || o.rows.length, nab = o.nab;
+  var h = '<div class="as3"><div class="as3t">📋 Liste d’Absence – Classe : ' + esc(o.cn) + '</div><div class="as3k"><div>👥 Effectif total<b>' + eff + ' élèves</b></div><div class="g">✔ Présents<b>' + (eff - nab) + ' élèves</b>(' + pc(eff - nab, eff) + ')</div><div class="r">✖ Absents<b>' + nab + ' élèves</b>(' + pc(nab, eff) + ')</div><div>📅 Période<b>' + esc(o.dt) + '</b></div></div>';
+  h += '<div class="as3w"><table><thead><tr><th>N°</th>' + (two ? '<th class="n">Nom</th><th>Prénom</th>' : '<th class="n">Nom et prénom</th>') + o.subs.map(function (s) { return '<th>' + sIcon(s) + '<br>' + esc(s) + '</th>'; }).join("") + '<th>Statut général</th><th>Observations</th></tr></thead><tbody>';
+  o.rows.forEach(function (r, i) {
+    var seen = o.subs.some(function (s) { return r.c[s] !== "x"; });
+    h += '<tr' + (r.me ? ' style="font-weight:800"' : "") + '><td>' + (i + 1) + '</td>' + (two ? '<td class="n">' + esc(r.nom) + '</td><td>' + esc(r.pre) + '</td>' : '<td class="n">' + esc(r.disp) + '</td>') +
+      o.subs.map(function (s) {
+        var v = r.c[s], p = v === "a" ? '<span class="a">✖ Absent</span>' : v === "p" ? '<span class="p">✔ Présent</span>' : '<span class="x">—</span>';
+        return '<td>' + (o.edit && v !== "x" ? '<button class="as3b" data-ab="cell" data-v="' + esc(o.gk + "|" + s + "|" + r.key) + '">' + p + '</button>' : p) + '</td>';
+      }).join("") + '<td>' + (!seen ? '<span class="x">—</span>' : anyA(r, o.subs) ? '<span class="a">Absent</span>' : '<span class="p">Présent</span>') + '</td><td>' +
+      (o.edit ? '<button class="as3b" data-ab="obs" data-v="' + esc(o.gk + "|" + r.key) + '">' + (r.obs ? esc(r.obs) : "✎") + '</button>' : esc(r.obs || "—")) + '</td></tr>';
+  });
+  return h + '</tbody></table></div><div class="as3l"><span class="p">✔ Présent</span> <span class="a">✖ Absent</span> <span class="x">—</span> non saisi</div><div class="as3f">Fait à Franceville, le ' + esc(dd(o.date)) + ' · <b>Le Proviseur</b>' + (STAMP ? '<br><img src="' + STAMP + '" alt="Signature et cachet">' : "") + '</div></div>';
+}
+
+/* ---------- élèves, enseignants, parents : feuilles publiées ---------- */
+function fromItems(l, ro, only, hl) {
+  var days = {}; l.forEach(function (x) { (days[x.date] = days[x.date] || []).push(x); });
+  return Object.keys(days).sort().reverse().slice(0, 30).map(function (d) {
+    var it = days[d], f = it.filter(function (x) { return x.subs; })[0], keys = uniq(it.map(function (x) { return x.key; }));
+    var subs = f ? f.subs : uniq(it.slice().sort(function (a, b) { return a.h < b.h ? -1 : 1; }).map(function (x) { return x.subject; }));
+    var rs = (only || !ro || !ro.length) ? keys.filter(function (k) { return !only || k === only; }).map(function (k) { return { key: k, display: it.filter(function (y) { return y.key === k; })[0].display }; }) : ro;
+    var nab = Math.max.apply(null, [keys.length].concat(it.map(function (x) { return x.nab || 0; }))), eff = Math.max.apply(null, [rs.length].concat(it.map(function (x) { return x.eff || 0; })));
+    return {
+      gk: "", cn: it[0].className, date: d, dt: dl(d), subs: subs, eff: eff, nab: nab,
+      rows: rs.map(function (r) {
+        var c = {}; subs.forEach(function (s) { c[s] = it.some(function (y) { return y.key === r.key && y.subject === s; }) ? "a" : "p"; });
+        var ob = it.filter(function (y) { return y.key === r.key && y.obs; })[0];
+        return { key: r.key, nom: r.nom, pre: r.prenom, disp: r.display, me: !!hl && r.key === hl, obs: ob ? ob.obs : "", c: c };
+      })
+    };
+  });
+}
+listHTML = function (l, mine, tag, only) {
+  if (!l.length) return todo("Aucune absence publiée pour le moment. 👏");
+  var hl = (typeof ME !== "undefined" && ME && ME.key) || "";
+  return fromItems(l, RC[l[0].classId], only, hl).map(sheetHTML).join("");
+};
+
+/* ---------- administration : une feuille par classe et par jour ---------- */
+function has(s, k) { return (s.absent || []).some(function (a) { return a.key === k; }); }
+function isPub(G) { return G.sess.length > 0 && G.sess.every(function (s) { return s.status === "published"; }); }
+function gsheet(G) {
+  var ro = RC[G.cid] || [], subs = [], t = G.tt;
+  if (t) ((t.days || {})[dn(G.date)] || []).filter(function (r) { return !pause(r.m); }).sort(function (a, b) { return a.h < b.h ? -1 : 1; }).forEach(function (r) { if (subs.indexOf(r.m) < 0) subs.push(r.m); });
+  G.sess.slice().sort(function (a, b) { return a.h < b.h ? -1 : 1; }).forEach(function (s) { if (subs.indexOf(s.subject) < 0) subs.push(s.subject); });
+  if (!ro.length) { var m = {}; G.sess.forEach(function (s) { (s.absent || []).forEach(function (a) { m[a.key] = { key: a.key, display: a.display }; }); }); ro = Object.keys(m).map(function (k) { return m[k]; }); }
+  var rows = ro.map(function (r) {
+    var c = {}, ob = ""; subs.forEach(function (sb) { var ss = G.sess.filter(function (s) { return s.subject === sb; }); c[sb] = !ss.length ? "x" : ss.some(function (s) { return has(s, r.key); }) ? "a" : "p"; });
+    G.sess.forEach(function (s) { if (s.obs && s.obs[r.key]) ob = s.obs[r.key]; });
+    return { key: r.key, nom: r.nom, pre: r.prenom, disp: r.display, c: c, obs: ob };
+  });
+  return { gk: G.k, cn: G.cn, date: G.date, dt: dl(G.date), subs: subs, rows: rows, eff: rows.length, nab: rows.filter(function (r) { return anyA(r, subs); }).length, edit: !isPub(G),
+    miss: subs.filter(function (sb) { return !G.sess.some(function (s) { return s.subject === sb; }); }) };
+}
+adminView = async function (L) {
+  L.innerHTML = todo("Chargement…");
+  try {
+    var r = await Promise.all([DB.list("abssess", { where: ["status", "==", "pending"] }), DB.list("abssess", { where: ["date", ">=", minus(14)] })]), m = {}, g = {};
+    if (typeof ATAB !== "undefined" && ATAB !== "ab") return;
+    r[0].concat(r[1]).forEach(function (x) { m[x.id] = x; });
+    Object.keys(m).forEach(function (id) { var s = m[id], k = s.classId + "_" + s.date; (g[k] = g[k] || { k: k, cid: s.classId, cn: s.className, date: s.date, sess: [] }).sess.push(s); });
+    AD.g = g;
+    await Promise.all(Object.keys(g).map(async function (k) { var G = g[k]; try { await roster(G.cid); } catch (e) { } try { var t = await loadTT(G.cid); G.tt = t && !t.err ? t : null; } catch (e) { G.tt = null; } }));
+    paintAdm(L);
+  } catch (e) { console.warn(e); L.innerHTML = todo("Absences indisponibles (vérifie les règles Firestore)."); }
+};
+function paintAdm(L) {
+  L = L || $("adm-list"); if (!L || !AD.g) return;
+  var ks = Object.keys(AD.g).sort(function (a, b) { var A = AD.g[a], B = AD.g[b], pa = isPub(A) ? 1 : 0, pb = isPub(B) ? 1 : 0; return pa - pb || (A.date < B.date ? 1 : -1); });
+  L.innerHTML = ks.map(function (k) {
+    var G = AD.g[k], pub = isPub(G), o = gsheet(G);
+    return '<h3 style="margin-top:20px">' + esc(G.cn) + ' · ' + esc(dl(G.date)) + ' <span class="tag">' + (pub ? "✅ publiée" : "⏳ en attente") + '</span></h3>' +
+      (o.miss.length ? '<p class="mini">⚠️ Pas encore saisi : ' + esc(o.miss.join(", ")) + '</p>' : "") + sheetHTML(o) +
+      '<p>' + (pub ? '<button class="chip" data-ab="sunp" data-v="' + esc(k) + '">Retirer la publication (pour modifier)</button>' : '<button class="btn dark" data-ab="spub" data-v="' + esc(k) + '">✅ Publier la liste de la classe</button>') + '</p>';
+  }).join("") || todo("Aucun appel envoyé pour le moment.");
+}
+async function pubS(s, o) {
+  var base = { classId: s.classId, className: s.className, date: s.date, h: s.h, subject: s.subject, by: s.by || "", byUid: s.byUid || "", sessId: s.id, pubAt: NOW(), subs: o.subs, eff: o.eff, nab: o.nab };
+  for (var i = 0; i < (s.absent || []).length; i++) { var a = s.absent[i]; await DB.set("abspub/" + s.classId + "/i/" + s.id + "_" + a.key, Object.assign({ key: a.key, display: a.display, type: a.type, obs: (s.obs && s.obs[a.key]) || "" }, base)); }
+  await DB.set("abssess/" + s.id, { status: "published", pubAt: NOW(), pubBy: who().name, absent: s.absent || [] }, true); s.status = "published";
+}
+adminAct = async function (a, v, b) {
+  var p = String(v || "").split("|"), G = AD.g && AD.g[p[0]], i, s; if (!G) return;
+  try {
+    if (a === "cell" || a === "obs") {
+      if (isPub(G)) { toast("Retire d’abord la publication pour modifier."); return; }
+      if (a === "cell") {
+        var ss = G.sess.filter(function (x) { return x.subject === p[1]; }), on = ss.some(function (x) { return has(x, p[2]); }), r = (RC[G.cid] || []).filter(function (k) { return k.key === p[2]; })[0];
+        for (i = 0; i < ss.length; i++) { s = ss[i]; s.absent = (s.absent || []).filter(function (x) { return x.key !== p[2]; }); if (!on) s.absent.push({ key: p[2], display: r ? r.display : p[2], type: "a" }); await DB.set("abssess/" + s.id, { absent: s.absent }, true); }
+      } else {
+        var cur = ""; G.sess.forEach(function (x) { if (x.obs && x.obs[p[1]]) cur = x.obs[p[1]]; });
+        var t = prompt("Observation (ex. absence justifiée, certificat médical) :", cur); if (t === null) return; t = t.trim();
+        for (i = 0; i < G.sess.length; i++) { s = G.sess[i]; s.obs = s.obs || {}; s.obs[p[1]] = t; await DB.set("abssess/" + s.id, { obs: s.obs }, true); }
+      }
+    } else if (a === "spub") { b.disabled = true; var o = gsheet(G); for (i = 0; i < G.sess.length; i++) await pubS(G.sess[i], o); toast("Liste publiée ✅ (élèves, enseignants et parents concernés)"); }
+    else if (a === "sunp") { if (!confirm("Retirer la publication ? Les élèves et parents ne verront plus cette liste.")) return; for (i = 0; i < G.sess.length; i++) await unpublish(G.sess[i]); toast("Publication retirée."); }
+    paintAdm();
+  } catch (e) { console.warn(e); toast("Action refusée par le serveur."); if (b) b.disabled = false; }
+};
+
+window.ABS = { kidsBlock: kidsBlock, kidsAdm: kidsAdm, adminView: adminView, parentSpace: window.ABS_parentSpace, _t: { PS: PS, resetLinks: function () { PL = null; }, checkKids: checkKids, slotsFor: slotsFor, publish: publish, unpublish: unpublish, sid: sid, AP: AP, AD: AD } };
+})();
+
+</script>
+<script id="parent34">
+/* ===== v34 : connexion des parents (inscription vérifiée + Google + mot de passe + empreinte) ===== */
+(function () {
+  "use strict";
+  var KM = "ltr_parmail_", g = function (i) { return document.getElementById(i); };
+  var nk = function (n, p) { var c = function (x) { return String(x || "").trim().toLowerCase().replace(/\s+/g, " "); }; return "pl|" + c(n) + "|" + c(p); };
+  var saveMail = function (k, e) { try { localStorage.setItem(KM + k, e); } catch (x) { } };
+  var getMail = function (k) { try { return localStorage.getItem(KM + k) || ""; } catch (x) { return ""; } };
+  function askPw(cb) {
+    var d = document.createElement("div");
+    d.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px";
+    d.innerHTML = '<form class="card" style="max-width:340px;width:100%"><b>Activer l’empreinte</b><p class="mini">Entre ton mot de passe une seule fois pour activer l’empreinte, le visage ou le code du téléphone sur cet appareil.</p><input type="password" autocomplete="current-password" minlength="6" required style="width:100%"><p><button class="btn dark" type="submit">Activer</button> <button class="chip" type="button" data-x="1">Plus tard</button></p></form>';
+    document.body.appendChild(d);
+    d.querySelector("input").focus();
+    d.querySelector("[data-x]").onclick = function () { d.remove(); };
+    d.querySelector("form").onsubmit = function (e) { e.preventDefault(); var v = d.querySelector("input").value; d.remove(); cb(v); };
+  }
+  async function enrollBio(k, pw) {
+    if (!window.__bioEnroll) { toast("Empreinte non disponible sur ce navigateur."); return; }
+    try { await window.__bioEnroll(k, pw); toast("Empreinte activée ✅ La prochaine fois : nom, prénom, « Se connecter »."); }
+    catch (e) { toast("Activation annulée ou impossible sur cet appareil. Tu peux utiliser ton mot de passe."); }
+  }
+  var prev = window.doParent;
+  window.doParent = async function (kind, f) {
+    if (kind === "reg") {
+      var w = g("pr-w").value, w2 = g("pr-w2").value;
+      if (w.length < 6) { say("pa-m", "Le mot de passe doit avoir au moins 6 caractères.", false); return; }
+      if (w !== w2) { say("pa-m", "Les deux mots de passe sont différents.", false); return; }
+      await prev(kind, f);
+      if (USER && ME && ME.role === "parent") {
+        var em = String(USER.email || "").toLowerCase(), k = nk(ME.nom, ME.prenom);
+        try { await AUTH.linkPw(em, w); } catch (e) { if (!/already|credential-already/.test(e.code || "")) { toast("Mot de passe non enregistré : " + (e.code || "erreur") + ". Utilise Google."); return; } }
+        saveMail(k, em);
+        setTimeout(function () { if (window.__bioHas && !window.__bioHas(k) && confirm("Activer maintenant l’empreinte digitale, le visage ou le code du téléphone pour tes prochaines connexions ?")) enrollBio(k, w); }, 700);
+      }
+      return;
+    }
+    if (f.__g) { f.__g = 0; await prev(kind, f); if (USER && ME && ME.role === "parent") { var em2 = String(USER.email || "").toLowerCase(), k2 = nk(ME.nom, ME.prenom); saveMail(k2, em2); setTimeout(function () { if (window.__bioHas && !window.__bioHas(k2)) askPw(function (pw) { enrollBio(k2, pw); }); }, 700); } return; }
+    var m = "pa-m", n = g("pl-n").value, p = g("pl-p").value, pw = g("pl-w").value, btn = f.querySelector("button[type=submit]");
+    if (!words(n).length || !words(p).length) { say(m, "Écris ton nom et ton prénom.", false); return; }
+    var lk = lockLeft(); if (lk) { say(m, lockMsg(lk), false); return; }
+    var email = getMail(nk(n, p));
+    if (!email) { say(m, "Sur ce téléphone, continue d’abord avec Google (bouton ci-dessous).", false); return; }
+    if (!pw) { say(m, "Entre ton mot de passe, ou active l’empreinte.", false); return; }
+    btn.disabled = true; say(m, "Vérification…", true);
+    try { await AUTH.signIn(email, pw); noteOk(); }
+    catch (e) { if (e.code !== "auth/network-request-failed") noteFail(); say(m, /network|too-many/.test(e.code || "") ? frErr(e) : "Informations ou mot de passe incorrects.", false); btn.disabled = false; }
+  };
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-pg]"); if (!b) return;
+    var f = b.closest("form[data-form]"); if (!f) return; e.preventDefault(); f.__g = 1; window.doParent("log", f);
+  });
+})();
+</script>
 </body>
 </html>
