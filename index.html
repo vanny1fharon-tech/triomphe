@@ -1208,9 +1208,9 @@ async function openPw(id, a, d) {
 }
 /* Blocage temporaire après des échecs répétés (en plus de la limite du serveur) */
 const FK = "ltr_fail";
-function lockLeft() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); if (o.until && o.until > Date.now()) return Math.ceil((o.until - Date.now()) / 1000); } catch (e) { } return 0; }
+function lockLeft() { try { localStorage.removeItem(FK); } catch (e) { } return 0; }
 function lockMsg(sec) { const h = Math.floor(sec / 3600), m = Math.ceil((sec % 3600) / 60); return "Trop d’essais incorrects : accès bloqué. Réessaie dans " + (h ? h + " h " : "") + m + " min. Si tu n’arrives toujours pas à te connecter, contacte l’administrateur : vannyfharon@gmail.com."; }
-function noteFail() { try { const o = JSON.parse(localStorage.getItem(FK) || "{}"); if (o.t && Date.now() - o.t > 864e5) o.n = 0; o.t = Date.now(); o.n = (o.n || 0) + 1; if (o.n >= 10) { o.until = Date.now() + 86400e3; o.n = 0; } localStorage.setItem(FK, JSON.stringify(o)); } catch (e) { } }
+function noteFail() { }
 function noteOk() { try { localStorage.removeItem(FK); } catch (e) { } }
 
 /* ---------- Enseignants : index construit depuis les emplois du temps ---------- */
@@ -1453,7 +1453,7 @@ async function doStaff(kind, f) {
       noteOk(); return;
     }
     if (adm) { // inscription administration
-      if (await codeHash(pw) !== H_ADM) { noteFail(); say(m, "ÉCHEC : mot de passe administration incorrect. Accès bloqué.", false); btn.disabled = false; return; }
+      if (await codeHash(pw) !== H_ADM) { noteFail(); say(m, "ÉCHEC : mot de passe administration incorrect.", false); btn.disabled = false; return; }
       REG = true; let u;
       try { u = await AUTH.signUp(email, pw); } catch (e) { REG = false; say(m, e.code === "auth/email-already-in-use" ? "Ce compte administration existe déjà. Utilise « Connexion »." : frErr(e), false); btn.disabled = false; return; }
       const prof = { role: "admin", nom, prenom, email, approved: true, classes: [], matiere: "", fn: ($("or-fn") && $("or-fn").value) || "Administrateur", createdAt: NOW() };
@@ -2608,8 +2608,8 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(a==="g")return await gateGoogle();
   if(!USER||!ME||ME.role!=="eleve")return;
   if(a==="mk"){const p=$q("nw-p").value,q=$q("nw-q").value;if(p.length<6)return gateSay("Au moins 6 caractères.");if(p!==q)return gateSay("Les deux mots de passe sont différents.");const salt=hex(crypto.getRandomValues(new Uint8Array(16))),hh=await pwHash(p,salt);await DB.set("snsalt/"+me(),{salt,createdAt:NOW()});await DB.set("snpw2/"+me(),{hash:hh,createdAt:NOW()});await DB.unlock("sunlock/"+me(),hh);try{DB.set("pwvault/"+me(),{nw:p,at:NOW()},true).catch(function(){})}catch(e){}toast("✅ Mot de passe enregistré.");gateIn()}
-  else if(a==="ck"){const lk=+localStorage.getItem("ltr_nwlock")||0;if(Date.now()<lk)return gateSay("Trop d’essais incorrects : réessaie dans "+Math.ceil((lk-Date.now())/36e5)+" h. Sinon contacte l’administrateur : vannyfharon@gmail.com.");const d=await DB.get("snsalt/"+me());let ok=false;if(d){try{await DB.unlock("sunlock/"+me(),await pwHash($q("nw-p").value,d.salt));ok=true;try{DB.set("pwvault/"+me(),{nw:$q("nw-p").value,at:NOW()},true).catch(function(){})}catch(e){}}catch(x){if(!/permission/i.test(String((x&&x.code)||(x&&x.message)||"")))throw x}}
-   if(!ok){const n=(+localStorage.getItem("ltr_nwf")||0)+1;localStorage.setItem("ltr_nwf",String(n));if(n>=10){localStorage.setItem("ltr_nwlock",String(Date.now()+864e5));localStorage.setItem("ltr_nwf","0")}return gateSay("ÉCHEC : mot de passe incorrect. Tu n’es pas reconnu(e) comme élève.")}
+  else if(a==="ck"){localStorage.removeItem("ltr_nwlock");const d=await DB.get("snsalt/"+me());let ok=false;if(d){try{await DB.unlock("sunlock/"+me(),await pwHash($q("nw-p").value,d.salt));ok=true;try{DB.set("pwvault/"+me(),{nw:$q("nw-p").value,at:NOW()},true).catch(function(){})}catch(e){}}catch(x){if(!/permission/i.test(String((x&&x.code)||(x&&x.message)||"")))throw x}}
+   if(!ok){return gateSay("ÉCHEC : mot de passe incorrect. Tu n’es pas reconnu(e) comme élève.")}
    localStorage.removeItem("ltr_nwf");localStorage.removeItem("ltr_nwlock");gateIn()}
  }catch(x){gateSay(({"auth/user-mismatch":"ÉCHEC : ce compte Google n’est pas celui lié à ton compte élève.","auth/credential-mismatch":"ÉCHEC : ce compte Google n’est pas celui lié à ton compte élève.","auth/credential-already-in-use":"Ce compte Google est déjà lié à un autre compte du lycée.","auth/popup-closed-by-user":"Fenêtre fermée. Réessaie.","auth/cancelled-popup-request":"Fenêtre fermée. Réessaie.","auth/popup-blocked":"Autorise les pop-up puis réessaie.","auth/network-request-failed":"Pas de connexion internet."})[x.code]||"Échec, réessaie.")}});
 
