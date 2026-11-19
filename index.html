@@ -1253,7 +1253,7 @@ function authHTML() {
   const msg = id => '<p class="msg" id="' + id + '" role="alert"></p>';
   const req = h => h.replace(/<input id="(\w+-[np])"/g, '<input id="$1" required');
   const f = formId();
-  if (f === "pl") h += '<h3>Connexion parent</h3><p class="todo">Écris ton nom et ton prénom, laisse le mot de passe vide puis appuie sur « Se connecter » : pose ton doigt (ou visage / code du téléphone). Première fois sur ce téléphone ? Continue avec Google.</p><form data-form="pl">' + req(idf("pl")) + pwf("pl", false, "Mot de passe (vide = empreinte)") + sub("Se connecter") + '<p><button class="btn alt" type="button" data-pg="1" style="color:#0b4a1f;border-color:#0b4a1f">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
+  if (f === "pl") h += '<h3>Connexion parent</h3><p class="todo">Écris ton nom et ton prénom, laisse le mot de passe vide puis appuie sur « Se connecter » : utilise ton empreinte, ton visage ou le code du téléphone. Première fois sur ce téléphone ? Continue avec Google.</p><form data-form="pl">' + req(idf("pl")) + pwf("pl", false, "Mot de passe (vide = empreinte)") + sub("Se connecter") + '<p><button class="btn alt" type="button" data-pg="1" style="color:#0b4a1f;border-color:#0b4a1f">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
   if (f === "pr") h += '<h3>Inscription parent</h3><p class="todo">Écris ton nom et ton prénom (les tiens), indique tes enfants, puis continue avec Google. Ton compte sera validé par le proviseur ou le censeur.</p><form data-form="pr">' + idf("pr") + ABS.kidsBlock("pk", 1) + pwf("pr", true, "Crée ton mot de passe") + '<p><button class="btn dark" type="submit" style="margin-top:14px">Continuer avec Google</button></p>' + msg("pa-m") + '</form>';
   if (f === "sl") h += '<h3>Connexion élève</h3><form data-form="sl">' + req(idf("sl")) + clsf("sl") + pwf("sl", false) + sub("Se connecter") + '<p><button class="lnk" type="button" data-s="forgot">Mot de passe oublié ? Utiliser ma réponse secrète</button></p>' + msg("sl-m") + '</form>';
   if (f === "so") {
@@ -4654,27 +4654,27 @@ window.LTAUD=function(host,stream,old){
   var has=function(id){try{return !!localStorage.getItem(KP+id)}catch(e){return false}};
   var del=function(id){try{localStorage.removeItem(KP+id)}catch(e){}};
   async function enroll(id,pw){
-    var cr=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:"Lycée Le Triomphe",id:location.hostname},user:{id:rnd(16),name:"triomphe",displayName:"Lycée Le Triomphe"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000,attestation:"none"}});
+    var cr=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:"Lycée Le Triomphe",id:location.hostname},user:{id:rnd(16),name:"triomphe",displayName:"Lycée Le Triomphe"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},hints:["client-device"],timeout:60000,attestation:"none"}});
     var k=await key(),iv=rnd(12),ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},k,new TextEncoder().encode(pw));
     localStorage.setItem(KP+id,JSON.stringify({c:b64(cr.rawId),iv:b64(iv),d:b64(ct)}));
   }
   async function unlock(id){
     var o=JSON.parse(localStorage.getItem(KP+id));
-    await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:unb(o.c)}],userVerification:"required",timeout:60000}});
+    await navigator.credentials.get({publicKey:{challenge:rnd(32),rpId:location.hostname,allowCredentials:[{type:"public-key",id:unb(o.c)}],userVerification:"required",hints:["client-device"],timeout:60000}});
     var k=await key(),p=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb(o.iv)},k,unb(o.d));
     return new TextDecoder().decode(p);
   }
   function fid(f){var id=f.getAttribute("data-form"),p=[id];["e","n","p","c"].forEach(function(s){var e=$(id+"-"+s);if(e)p.push(String(e.value||"").trim().toLowerCase().replace(/\s+/g," "))});return p.join("|")}
   function isLogin(f){var id=f.getAttribute("data-form");return !!$(id+"-w")&&!$(id+"-w2")&&!$(id+"-a")&&/connecter/i.test((f.querySelector("button[type=submit]")||{}).textContent||"")}
-  function watch(id,m,after){USED=id;setTimeout(function(){if(USED===id&&!(typeof USER!=="undefined"&&USER&&after())){del(id);USED=null;say(m,"Le mot de passe a changé : tape-le une fois, puis réactive l’empreinte.")}else if(USED===id)USED=null},9000)}
+  function watch(id,m,after){USED=id;setTimeout(function(){if(USED===id&&!(typeof USER!=="undefined"&&USER&&after())){del(id);USED=null;say(m,"Le mot de passe a changé : tape-le une fois, puis réactive l’empreinte ou le visage.")}else if(USED===id)USED=null},9000)}
   /* Étape 1 : le bouton « Se connecter » avec mot de passe vide */
   document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button[type=submit]");if(!b)return;var f=b.form;if(!f||!f.getAttribute("data-form")||!isLogin(f))return;var w=$(f.getAttribute("data-form")+"-w");if(w&&!w.value)w.required=false},true);
   document.addEventListener("submit",function(e){var f=e.target.closest&&e.target.closest("form[data-form]");if(!f||!isLogin(f)||f.__bio)return;
     var id=f.getAttribute("data-form"),w=$(id+"-w"),m=id+"-m",k=fid(f);
     if(w.value){PEND={id:k,pw:w.value,t:Date.now()};return}
     e.preventDefault();e.stopImmediatePropagation();
-    if(!has(k)){say(m,"Entre ton mot de passe (tu pourras ensuite activer l’empreinte).");return}
-    say(m,"Pose ton doigt ou déverrouille le téléphone…");$(m).className="msg good";
+    if(!has(k)){say(m,"Entre ton mot de passe (tu pourras ensuite activer l’empreinte, le visage ou le code).");return}
+    say(m,"Vérifie ton identité : empreinte, visage ou code du téléphone…");$(m).className="msg good";
     unlock(k).then(function(pw){w.value=pw;f.__bio=1;watch(k,m,function(){return true});f.requestSubmit();setTimeout(function(){f.__bio=0;w.value=""},400)}).catch(function(){say(m,"Vérification annulée ou refusée. Tape ton mot de passe.")});
   },true);
   /* Élève New : bouton « Se connecter » du verrou */
@@ -4682,14 +4682,14 @@ window.LTAUD=function(host,stream,old){
     var k="nw|"+(typeof USER!=="undefined"&&USER?USER.uid:"");
     if(w.value){PEND={id:k,pw:w.value,t:Date.now(),nw:1};return}
     e.preventDefault();e.stopImmediatePropagation();
-    if(!has(k)){say("nw-m","Entre ton mot de passe (tu pourras ensuite activer l’empreinte).");return}
+    if(!has(k)){say("nw-m","Entre ton mot de passe (tu pourras ensuite activer l’empreinte, le visage ou le code).");return}
     unlock(k).then(function(pw){w.value=pw;b.__bio=1;watch(k,"nw-m",function(){return !$("nw-p")});b.click();setTimeout(function(){b.__bio=0},400)}).catch(function(){say("nw-m","Vérification annulée ou refusée. Tape ton mot de passe.")});
   },true);
   /* Étape 2 : proposer l’activation après une connexion réussie */
   async function offer(nw){var p=PEND;if(!p||Date.now()-p.t>120000||(!!p.nw)!==!!nw){return}PEND=null;USED=null;
     if(has(p.id))return;
     if(!confirm("Activer l’empreinte digitale, le visage ou le code du téléphone pour te connecter sans taper ton mot de passe ?"))return;
-    try{await enroll(p.id,p.pw);info("Activé. La prochaine fois, laisse le mot de passe vide.")}catch(x){info("Activation annulée ou impossible sur cet appareil.")}}
+    try{await enroll(p.id,p.pw);info("Activé (empreinte, visage ou code, selon ton téléphone). La prochaine fois, laisse le mot de passe vide.")}catch(x){info("Activation annulée ou impossible sur cet appareil.")}}
   var oa=window.afterAuth;if(typeof oa==="function"){window.afterAuth=function(){var r=oa.apply(this,arguments);if(typeof USER!=="undefined"&&USER)setTimeout(function(){offer(false)},600);return r}}
   window.__bioGate=function(){setTimeout(function(){offer(true)},600)};
   window.__bioEnroll=function(id,pw){return enroll(id,pw)};window.__bioHas=has;
@@ -6234,15 +6234,15 @@ window.ABS = { kidsBlock: kidsBlock, kidsAdm: kidsAdm, adminView: adminView, par
   function askPw(cb) {
     var d = document.createElement("div");
     d.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px";
-    d.innerHTML = '<form class="card" style="max-width:340px;width:100%"><b>Activer l’empreinte</b><p class="mini">Entre ton mot de passe une seule fois pour activer l’empreinte, le visage ou le code du téléphone sur cet appareil.</p><input type="password" autocomplete="current-password" minlength="6" required style="width:100%"><p><button class="btn dark" type="submit">Activer</button> <button class="chip" type="button" data-x="1">Plus tard</button></p></form>';
+    d.innerHTML = '<form class="card" style="max-width:340px;width:100%"><b>Activer l’empreinte, le visage ou le code</b><p class="mini">Entre ton mot de passe une seule fois pour activer l’empreinte, le visage ou le code du téléphone sur cet appareil.</p><input type="password" autocomplete="current-password" minlength="6" required style="width:100%"><p><button class="btn dark" type="submit">Activer</button> <button class="chip" type="button" data-x="1">Plus tard</button></p></form>';
     document.body.appendChild(d);
     d.querySelector("input").focus();
     d.querySelector("[data-x]").onclick = function () { d.remove(); };
     d.querySelector("form").onsubmit = function (e) { e.preventDefault(); var v = d.querySelector("input").value; d.remove(); cb(v); };
   }
   async function enrollBio(k, pw) {
-    if (!window.__bioEnroll) { toast("Empreinte non disponible sur ce navigateur."); return; }
-    try { await window.__bioEnroll(k, pw); toast("Empreinte activée ✅ La prochaine fois : nom, prénom, « Se connecter »."); }
+    if (!window.__bioEnroll) { toast("Empreinte / visage non disponible sur ce navigateur."); return; }
+    try { await window.__bioEnroll(k, pw); toast("Empreinte / visage / code activé ✅ La prochaine fois : nom, prénom, « Se connecter »."); }
     catch (e) { toast("Activation annulée ou impossible sur cet appareil. Tu peux utiliser ton mot de passe."); }
   }
   var prev = window.doParent;
@@ -6266,7 +6266,7 @@ window.ABS = { kidsBlock: kidsBlock, kidsAdm: kidsAdm, adminView: adminView, par
     var lk = lockLeft(); if (lk) { say(m, lockMsg(lk), false); return; }
     var email = getMail(nk(n, p));
     if (!email) { say(m, "Sur ce téléphone, continue d’abord avec Google (bouton ci-dessous).", false); return; }
-    if (!pw) { say(m, "Entre ton mot de passe, ou active l’empreinte.", false); return; }
+    if (!pw) { say(m, "Entre ton mot de passe, ou active l’empreinte / le visage.", false); return; }
     btn.disabled = true; say(m, "Vérification…", true);
     try { await AUTH.signIn(email, pw); noteOk(); }
     catch (e) { if (e.code !== "auth/network-request-failed") noteFail(); say(m, /network|too-many/.test(e.code || "") ? frErr(e) : "Informations ou mot de passe incorrects.", false); btn.disabled = false; }
