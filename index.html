@@ -1481,8 +1481,26 @@ document.addEventListener("submit", e => { const f = e.target.closest && e.targe
 let SDASH = true, STAB = "tt", SCLASS = null, TDAY = "Lundi", GSUB = null;
 function allowedClasses() { if (!ME) return []; if (ME.role === "admin") return CLS; if (ME.role === "prof") return (ME.classes || []).map(clsById).filter(Boolean); const c = clsById(ME.classId); return c ? [c] : []; }
 function myKey() { return ME && ME.key; }
+
+/* ---- enseignant : retrouver toutes ses classes / groupes d'après les emplois du temps ---- */
+function profHit(tn) { if (!ME) return false; const w = words(tn), nn = words(ME.nom || ""), pn = words(ME.prenom || ""); if (!w.length || !nn.length) return false; if (ME.idx && tKey(Array.from(new Set(tWords(tn)))) === ME.idx) return true; return nn.every(x => w.indexOf(x) >= 0) && (!pn.length || pn.some(x => w.indexOf(x) >= 0)); }
+function profAny(tn) { const w = words(tn); return words((ME.nom || "") + " " + (ME.prenom || "")).some(x => w.indexOf(x) >= 0); }
+let HEALED = "";
+async function healProf() {
+  if (!ME || ME.role !== "prof" || !USER || HEALED === USER.uid) return false; HEALED = USER.uid;
+  const cl = (ME.classes || []).slice(), gr = Array.isArray(ME.groups) ? ME.groups.slice() : [], mt = String(ME.matiere || "").split(",").map(x => x.trim()).filter(Boolean); let ch = false;
+  for (const c of CLS) {
+    const t = TTC[c.id] && !TTC[c.id].err ? TTC[c.id] : await loadTT(c.id);
+    ((t && t.subjects) || []).forEach(sb => { if (!sb.t || !profHit(sb.t)) return; const gk = c.id + "__" + slug(sb.n); if (cl.indexOf(c.id) < 0) { cl.push(c.id); ch = true; } if (gr.indexOf(gk) < 0) { gr.push(gk); ch = true; } if (!mt.some(m => norm(m) === norm(sb.n))) { mt.push(sb.n); ch = true; } });
+  }
+  if (!ch) return false;
+  ME.classes = cl; ME.groups = gr; ME.matiere = mt.join(", ");
+  try { await DB.set("users/" + USER.uid, { classes: cl, groups: gr, matiere: ME.matiere }, true); } catch (e) { }
+  return true;
+}
 function renderSpace() {
   const el = $("space"); stopGroup(); $("sp-h").hidden = false;
+  if (ME && ME.role === "prof" && ME.approved && USER && HEALED !== USER.uid) healProf().then(c => { if (c) renderSpace(); }).catch(() => { });
   if (!USER) { el.innerHTML = authHTML(); return; }
   const out = '<button class="chip" data-s="logout">Se déconnecter</button>';
   if (!ME) { el.innerHTML = fixHTML(out); return; }
@@ -1597,7 +1615,7 @@ function stopGroup() { if (GUNS) { try { GUNS(); } catch (e) { } GUNS = null; } 
 async function tabGroups() {
   const c = clsById(SCLASS), box = $("stab"); box.innerHTML = todo("Chargement…");
   const t = await loadTT(c.id); if (STAB !== "gr" || SCLASS !== c.id) return;
-  let subs = groupSubjects(t, c); if (ME.role === "prof") { const mine = subs.filter(x => { if (Array.isArray(ME.groups) && ME.groups.indexOf(c.id + "__" + slug(x)) >= 0) return true; const tn = teacherOf(t, x); if (tn) { const w = tWords(tn), nn = norm(ME.nom || ""), pn = norm(ME.prenom || ""); return (ME.idx && tKey(Array.from(new Set(w))) === ME.idx) || (nn && pn && norm(tn).indexOf(nn) >= 0 && norm(tn).indexOf(pn) >= 0); } return String(ME.matiere || "").split(",").some(y => norm(y) === norm(x)); }); subs = mine; if (!subs.length) { box.innerHTML = todo("Aucun groupe pour toi dans cette classe : tu n’as accès qu’au groupe de ta propre matière."); return; } }
+  let subs = groupSubjects(t, c); if (ME.role === "prof") { const mine = subs.filter(x => { if (Array.isArray(ME.groups) && ME.groups.indexOf(c.id + "__" + slug(x)) >= 0) return true; const tn = teacherOf(t, x); if (tn && profHit(tn)) return true; if (tn && !profAny(tn)) return false; return String(ME.matiere || "").split(",").some(y => norm(y) === norm(x)); }); subs = mine; if (!subs.length) { box.innerHTML = todo("Aucun groupe pour toi dans cette classe : tu n’as accès qu’au groupe de ta propre matière."); return; } }
   if (!GSUB || subs.indexOf(GSUB) < 0) GSUB = subs[0];
   box.innerHTML = '<p class="todo">Un groupe par matière. Enseignants et élèves peuvent écrire, partager des infos et envoyer des images ou des PDF (TD, corrections…).</p><div class="chips">' + subs.map(s => '<button class="chip' + (s === GSUB ? " on" : "") + '" data-s="grp" data-v="' + esc(s) + '">' + esc(s) + '</button>').join("") + '</div><div id="gbox"></div>';
   openGroup(c, t);
