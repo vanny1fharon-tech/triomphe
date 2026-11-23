@@ -28,10 +28,9 @@ body{margin:0}
 (function(){
   var K="c3fvcRO=ye9mIXsRZ#32TFr9XS^7%9L4ZycOY8-h";
   function xor(bytes){var o=new Uint8Array(bytes.length);for(var i=0;i<bytes.length;i++)o[i]=bytes[i]^K.charCodeAt(i%K.length);return o}
-  function b64ToBytes(b64){var bin=atob(b64.replace(/\s+/g,""));var a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a}
   function fail(e){console.error("load failed",e);var l=document.getElementById("ldr");if(l)l.innerHTML='<p style="padding:24px;text-align:center;color:#900">Le site n\u2019a pas pu charger. V\u00e9rifie ta connexion et recharge la page.</p>'}
-  fetch("app.enc.js",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.text()}).then(function(b64){
-    var bytes=xor(b64ToBytes(b64));
+  fetch("app.enc.js",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.arrayBuffer()}).then(function(buf){
+    var bytes=xor(new Uint8Array(buf));
     var all=new TextDecoder("utf-8").decode(bytes);
     var M0="@@@S9pQ@@@", M1="@@@S9pR@@@", M2="@@@S9pT@@@";
     var p0=all.indexOf(M0), p1=all.indexOf(M1), p2=all.indexOf(M2);
